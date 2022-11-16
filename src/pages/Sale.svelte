@@ -1,11 +1,12 @@
 <script lang="ts">
-  import Button from "./Button.svelte";
+  import Button from "../components/Button.svelte";
   import { createActor } from "../declarations/ext/index.js";
   import { onMount } from "svelte";
   import formatDistance from "date-fns/formatDistance";
   import type { SaleSettings } from "src/declarations/ext/staging.did";
+  import Login from "../components/Login.svelte";
+  import { canisterId } from "../collection";
 
-  let canisterId = '4ggk4-mqaaa-aaaae-qad6q-cai';
   let collectionName = 'ICP Flower';
   let description = 'The final part of the Flower Power DAO Trilogy, the continuation of Ludo’s physical to digital initiative, and the dawn of a community-curated art hub. This collection finalizes the historic arc of Ludo’s visionary story for blockchain—one that began with the 2018 “R.I.P Banking System” BTC Flower and closes with the now “R.I.P Big Tech” ICP Flower. Both are symbols of our shared dream for the future created to inspire hope during times of peak uncertainty. While it marks the end of an era, it only completes the first step of our story as we now shift toward making new art the vessel through which these stories can reach a critical mass, and make real the dream our flowers represent. What comes next is third-party art, curated by this community, grown from flower seeds, incentivized by FP DAO, and provided for by the finest artists, through which flower holders, of course, remain the exclusive access members.';
   let banner = 'https://s3.amazonaws.com/pf-user-files-01/u-166728/uploads/2022-10-25/6u23w8i/collectionbanner_comp1.jpg';
@@ -38,18 +39,19 @@
       saleStatus = 'ended';
     }
 
-    startDateText = formatDistance(startDate, new Date, {addSuffix: true});
-    endDateText = formatDistance(endDate, new Date, {addSuffix: true});
+    startDateText = formatDistance(startDate, new Date, { addSuffix: true });
+    endDateText = formatDistance(endDate, new Date, { addSuffix: true });
   };
 
   onMount(() => {
-    fetchData().catch((err) => {
-      error = err;
-    });
+    // fetchData().catch((err) => {
+    //   error = err;
+    // });
   });
 </script>
 
 <div class="flex flex-col pt-10 min-w-0">
+  <Login></Login>
   {#if saleSettings}
     <div class="flex flex-col grow">
       <img class="grow object-cover h-44 bg-gray-300 mb-12 rounded-xl max-w-6xl" src="{banner}" alt="{collectionName} banner">

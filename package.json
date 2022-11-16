@@ -10,7 +10,8 @@
 	},
 	"dependencies": {
 		"@dfinity/agent": "0.10.0",
-		"date-fns": "^2.29.3"
+		"date-fns": "^2.29.3",
+		"ic-stoic-identity": "^2.0.0"
 	},
 	"devDependencies": {
 		"@sveltejs/vite-plugin-svelte": "^1.2.0",

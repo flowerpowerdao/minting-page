@@ -1,6 +1,5 @@
 <script lang="ts">
-  import logo from './assets/svelte.png'
-  import Sale from './lib/Sale.svelte'
+  import Sale from './pages/Sale.svelte'
 </script>
 
 <main>
