@@ -9,11 +9,10 @@ import {
 import type { _SERVICE as ExtActor } from "./declarations/ext/staging.did";
 import { canisterId } from "./collection";
 
-// export const HOST =
-//   process.env.NODE_ENV === "development"
-//     ? "http://localhost:3000"
-//     : "https://ic0.app";
-export const HOST = 'https://ic0.app';
+export const HOST =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://ic0.app";
 
 type Filters = {
   open: boolean;
@@ -51,6 +50,15 @@ export const createStore = ({
   host?: string;
 }) => {
   const { subscribe, update } = writable<State>(defaultState);
+
+  const isConnected = async () => {
+    let plugConnected = await window.ic?.plug?.isConnected();
+    if (plugConnected) {
+      return true;
+    }
+    let stoicIdentity = await StoicIdentity.load();
+    return stoicIdentity !== false;
+  };
 
   const stoicConnect = () => {
     StoicIdentity.load().then(async (identity) => {
@@ -178,6 +186,7 @@ export const createStore = ({
   return {
     subscribe,
     update,
+    isConnected,
     plugConnect,
     stoicConnect,
     disconnect,

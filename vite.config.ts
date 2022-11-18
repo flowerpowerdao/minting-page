@@ -131,5 +131,6 @@ export default defineConfig({
     "process.env.NODE_ENV": JSON.stringify(
       isDev ? "development" : "production",
     ),
+    "global": "globalThis",
   },
 });

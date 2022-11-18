@@ -3,13 +3,14 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "npm run replica && npm run deploy:icpflower && npm run vite",
-		"replica": "dfx stop && rm -rf .dfx icpflower-nft-canister/.dfx && dfx start --clean --background",
+		"dev": "npm run replica && npm run deploy && npm run vite",
+		"replica": "dfx stop && rm -rf .dfx icpflower-nft-canister/.dfx && dfx start --clean --background --emulator",
+		"deploy:icpflower": "cd icpflower-nft-canister && dfx deploy --mode reinstall -y --argument '(principal \"'$(dfx identity get-principal -qq)'\")' staging && dfx canister call staging addAsset '(record {name = \"privat\";payload = record {ctype = \"text/html\"; data = vec {blob \"hello world!\"} } })' && dfx canister call staging initMint && cd ..",
+		"deploy": "npm run deploy:icpflower",
 		"vite": "vite --port 3000",
 		"build": "vite build",
 		"serve": "vite preview",
-		"check": "svelte-check --tsconfig ./tsconfig.json",
-		"deploy:icpflower": "cd icpflower-nft-canister && dfx deploy --argument '(principal \"aaaaa-aa\")' staging && dfx canister call staging addAsset '(record {name = \"privat\";payload = record {ctype = \"text/html\"; data = vec {blob \"hello world!\"} } })' && cd .."
+		"check": "svelte-check --tsconfig ./tsconfig.json"
 	},
 	"dependencies": {
 		"@dfinity/agent": "0.10.0",
