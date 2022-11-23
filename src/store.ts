@@ -1,6 +1,6 @@
 import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
-import type { HttpAgent } from "@dfinity/agent";
+import type { HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
 import {
   createActor,
@@ -85,7 +85,7 @@ export const createStore = ({
 
       update((state) => ({
         ...state,
-        actor: actor,
+        extActor: actor,
         principal,
         isAuthed: "stoic",
       }));
@@ -138,7 +138,9 @@ export const createStore = ({
 
     // Fetch root key for certificate validation during development
     if (process.env.NODE_ENV !== "production") {
-      window.ic.plug.agent.fetchRootKey().catch((err) => {
+      window.ic.plug.agent.fetchRootKey().then((res) => {
+        console.log('root key fetched', res);
+      }).catch((err) => {
         console.warn(
           "Unable to fetch root key. Check to ensure that your local replica is running",
         );
@@ -196,6 +198,7 @@ export const createStore = ({
 export const store = createStore({
   whitelist: [
     canisterId,
+    // 'rrkah-fqaaa-aaaaa-aaaaq-cai',
   ],
   host: HOST,
 });
@@ -205,6 +208,11 @@ declare global {
     ic: {
       plug: {
         agent: HttpAgent;
+        sessionManager: {
+          sessionData: {
+            accountId: string,
+          },
+        },
         getPrincipal: () => Promise<Principal>;
         deleteAgent: () => void;
         requestConnect: (options?: {
@@ -244,3 +252,7 @@ declare global {
     };
   }
 }
+
+
+window.store = store;
+window.get = get;

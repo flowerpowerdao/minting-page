@@ -1,6 +1,23 @@
 {
-  "dfx": "0.12.0",
-  "canisters": {},
+  "canisters": {
+    "ledger": {
+      "type": "custom",
+      "wasm": "./ledger/ledger.wasm",
+      "candid": "./ledger/ledger.private.did",
+      "build": "",
+      "remote": {
+        "candid": "./ledger/ledger.public.did",
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
+    }
+  },
+  "defaults": {
+    "replica": {
+      "subnet_type": "application"
+    }
+  },
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

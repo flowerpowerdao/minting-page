@@ -4,9 +4,10 @@
 	"type": "module",
 	"scripts": {
 		"dev": "npm run replica && npm run deploy && npm run vite",
-		"replica": "dfx stop && rm -rf .dfx icpflower-nft-canister/.dfx && dfx start --clean --background --emulator",
+		"replica": "dfx stop && rm -rf .dfx icpflower-nft-canister/.dfx && dfx start --clean --background",
 		"deploy:icpflower": "cd icpflower-nft-canister && dfx deploy --mode reinstall -y --argument '(principal \"aaaaa-aa\")' staging && dfx canister call staging addAsset '(record {name = \"privat\";payload = record {ctype = \"text/html\"; data = vec {blob \"hello world!\"} } })' && dfx canister call staging initMint && cd ..",
-		"deploy": "npm run deploy:icpflower",
+		"deploy:ledger": ". ./set-deploy-env.zsh && dfx deploy ledger --mode reinstall -y --argument '(record {minting_account = \"'$(dfx ledger account-id)'\"; initial_values = vec { record { '$WALLET_ADDRESS'; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'",
+		"deploy": "npm run deploy:ledger && npm run deploy:icpflower",
 		"vite": "vite --port 3000",
 		"build": "vite build",
 		"serve": "vite preview",

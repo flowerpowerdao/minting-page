@@ -9,6 +9,7 @@
   import Login from "../components/Login.svelte";
   import BuyNftModal from "./BuyNftModal.svelte";
   import LoginModal from "../components/LoginModal.svelte";
+  import { get } from "svelte/store";
 
   let collectionName = 'ICP Flower';
   let description = 'The final part of the Flower Power DAO Trilogy, the continuation of Ludo’s physical to digital initiative, and the dawn of a community-curated art hub. This collection finalizes the historic arc of Ludo’s visionary story for blockchain—one that began with the 2018 “R.I.P Banking System” BTC Flower and closes with the now “R.I.P Big Tech” ICP Flower. Both are symbols of our shared dream for the future created to inspire hope during times of peak uncertainty. While it marks the end of an era, it only completes the first step of our story as we now shift toward making new art the vessel through which these stories can reach a critical mass, and make real the dream our flowers represent. What comes next is third-party art, curated by this community, grown from flower seeds, incentivized by FP DAO, and provided for by the finest artists, through which flower holders, of course, remain the exclusive access members.';
@@ -18,7 +19,6 @@
   let saleSettings: SaleSettings;
   let saleStatus: 'waiting' | 'ongoing' | 'ended' = 'waiting';
   let startDateText = '-';
-  let endDateText = '-';
   let error = '';
 
   let loginModalOpen = false;
@@ -38,22 +38,19 @@
     buyNftModalOpen = true;
   }
 
-  let HOST = process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://ic0.app";
   let fetchData = async () => {
-    let actor = createActor(canisterId, {
-      agentOptions: { host: HOST },
-    });
-    let accountAddress = '';
-    saleSettings = await actor.salesSettings(accountAddress);
+    let state = get(store);
+    let accountAddress = '8b61ff722d7e6321eb99bb607ab0cf323b3c64b43d6a13c245c8a4e197f7b38b';
+    console.log(state.extActor)
+    saleSettings = await state.extActor.salesSettings(accountAddress);
     console.log(saleSettings);
 
     let startDate = new Date(Number(saleSettings.startTime / 1000000n));
-    let endDate = saleSettings.endTime ? new Date(Number(saleSettings.startTime / 1000000n)) : new Date(Date.now() + 1000 * 60 * 60 * 24 * 14);
 
     if (startDate.getTime() > Date.now()) {
       saleStatus = 'waiting';
     }
-    else if (endDate.getTime() > Date.now()) {
+    else if (saleSettings.remaining) {
       saleStatus = 'ongoing';
     }
     else {
@@ -61,7 +58,6 @@
     }
 
     startDateText = formatDistance(startDate, new Date, { addSuffix: true });
-    endDateText = formatDistance(endDate, new Date, { addSuffix: true });
   };
 
   onMount(() => {
@@ -77,10 +73,10 @@
 </svelte:head>
 
 <BuyNftModal count={buying.count} totalPrice={buying.totalPrice} bind:open={buyNftModalOpen}></BuyNftModal>
-<LoginModal bind:open={loginModalOpen}></LoginModal>
+<!-- <LoginModal bind:open={loginModalOpen}></LoginModal> -->
 
 <div class="flex flex-col pt-10 min-w-0">
-  <!-- <Login></Login> -->
+  <Login></Login>
   {#if saleSettings}
     <div class="flex flex-col grow">
       <img class="grow object-cover h-44 bg-gray-300 mb-12 rounded-xl max-w-6xl" src="{banner}" alt="{collectionName} banner">
@@ -92,18 +88,17 @@
       <div>{description}</div>
 
       <div class="flex flex-wrap justify-center mt-10 gap-7">
-        <div class="flex flex-col px-16">
           {#if saleStatus == 'waiting'}
-            <div>START DATE</div>
-            <div class="text-2xl font-bold">{startDateText}</div>
-          {:else if saleStatus == 'ongoing'}
-            <div>END DATE</div>
-            <div class="text-2xl font-bold">{endDateText}</div>
+            <div class="flex flex-col px-16">
+              <div>START DATE</div>
+              <div class="text-2xl font-bold">{startDateText}</div>
+            </div>
           {:else if saleStatus == 'ended'}
-            <div>END DATE</div>
-            <div class="text-2xl font-bold">sale ended</div>
+            <div class="flex flex-col px-16">
+              <div>END DATE</div>
+              <div class="text-2xl font-bold">sale ended</div>
+            </div>
           {/if}
-        </div>
         <div class="flex flex-col px-16">
           <div>AVAILABLE</div>
           <div class="text-2xl font-bold">{saleSettings.remaining ?? '-'}</div>
