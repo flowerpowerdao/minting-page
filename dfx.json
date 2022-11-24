@@ -1,5 +1,12 @@
 {
   "canisters": {
+    "assets": {
+      "frontend": {
+        "entrypoint": "dist/index.html"
+      },
+      "source": ["dist/"],
+      "type": "assets"
+    },
     "ledger": {
       "type": "custom",
       "wasm": "./ledger/ledger.wasm",

@@ -42,10 +42,10 @@
     progressText = 'Reserving NFT...';
 
     try {
-      console.log(1)
+      // reserve
       let accountId = window.ic.plug.sessionManager.sessionData.accountId;
+      console.log('reserving for account', accountId);
       let res = await state.extActor.reserve(500000000n, 1n, accountId, _getRandomBytes());
-      console.log(2, res)
 
       if ('err' in res) {
         throw res.err;
@@ -54,15 +54,35 @@
       var payToAddress = res.ok[0];
       var priceToPay = res.ok[1];
 
+      // transfer ICP
+      progressText = 'Transferring ICP...';
       if (state.isAuthed === 'plug') {
+        console.log('sending')
         let hight = await window.ic.plug.requestTransfer({
           to: payToAddress,
           amount: Number(priceToPay),
+          opts: {
+            fee: 10000,
+          },
         });
         console.log('sent', hight)
       }
 
-      progressText = 'Transferring ICP...';
+      // retreive
+      progressText = 'Completing purchase...';
+
+      while (true) {
+        let res;
+        try {
+          res = await state.extActor.retreive(payToAddress);
+        } catch (e) {
+          continue;
+        }
+        if ('ok' in res) break;
+        if ('err' in res)
+          throw 'Your purchase failed! If ICP was sent and the sale ran out, you will be refunded shortly!';
+      }
+      progressText = 'Your purchase was made successfully - your NFT will be sent to your address shortly';
     } catch (err) {
       progressText = 'ERROR: ' + err;
       canClose = true;

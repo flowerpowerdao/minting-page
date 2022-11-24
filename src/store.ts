@@ -198,7 +198,7 @@ export const createStore = ({
 export const store = createStore({
   whitelist: [
     canisterId,
-    // 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+    // 'ryjl3-tyaaa-aaaaa-aaaba-caie',
   ],
   host: HOST,
 });

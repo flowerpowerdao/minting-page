@@ -20,7 +20,7 @@ Network name = local
 
 Host URL = http://127.0.0.1:8000
 
-Ledger canister Id = rrkah-fqaaa-aaaaa-aaaaq-cai
+Ledger canister Id = ryjl3-tyaaa-aaaaa-aaaba-cai
 
 Then switch to the local network
 
