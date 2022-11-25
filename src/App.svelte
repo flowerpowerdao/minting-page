@@ -1,7 +1,9 @@
 <script lang="ts">
-  import Sale from './pages/Sale.svelte'
+  import Header from './components/Header.svelte';
+  import Sale from './sale/Sale.svelte'
 </script>
 
+<Header></Header>
 <main>
   <Sale />
 </main>

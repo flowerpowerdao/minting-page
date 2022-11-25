@@ -3,15 +3,17 @@
   import Modal from "../components/Modal.svelte";
   import { store } from "../store";
   import { get } from "svelte/store";
+  import { createEventDispatcher } from 'svelte';
   import Loader from "../components/Loader.svelte";
 
   export let open;
-  export let count: number;
-  export let totalPrice: number;
+  export let count: bigint;
+  export let totalPrice: bigint;
 
   let step: 'confirm' | 'buying' | 'bought' | 'error' = 'confirm';
   let progressText = '';
   let errorText = '';
+  let dispatch = createEventDispatcher();
 
   $: {
     if (!open) {
@@ -46,7 +48,7 @@
       // reserve
       let accountId = window.ic.plug.sessionManager.sessionData.accountId;
       console.log('reserving for account', accountId);
-      let res = await state.extActor.reserve(500000000n, 1n, accountId, _getRandomBytes());
+      let res = await state.extActor.reserve(totalPrice, count, accountId, _getRandomBytes());
 
       if ('err' in res) {
         throw res.err;
@@ -85,6 +87,8 @@
       }
       
       step = 'bought';
+
+      dispatch('success');
     } catch (err) {
       step = 'error';
       errorText = err;
@@ -97,7 +101,7 @@
   {#if step == 'confirm'}
     <div class="flex flex-col gap-5">
       <div class="text-xl text-left px-6 py-12 my-6">
-        Are you sure you want to continue with this purchase of <b>{count}</b> NFT{count === 1 ? '' : 's'} for the total price of <b>{totalPrice}</b> ICP?
+        Are you sure you want to continue with this purchase of <b>{count}</b> NFT{count === 1n ? '' : 's'} for the total price of <b>{totalPrice / 100000000n}</b> ICP?
         All transactions are final on confirmation and can't be reversed.
       </div>
       <div class="flex gap-3 justify-end">

@@ -24,8 +24,8 @@
   let loginModalOpen = false;
   let buyNftModalOpen = false;
   let buying = {
-    count: 0,
-    totalPrice: 0,
+    count: 0n,
+    totalPrice: 0n,
   };
 
   async function buy(count, totalPrice) {
@@ -61,10 +61,12 @@
   };
 
   onMount(() => {
-    fetchData().catch((err) => {
-      error = err;
-      console.error(err);
-    });
+    let timer = setInterval(fetchData, 10000);
+    fetchData();
+
+    return () => {
+      clearInterval(timer);
+    };
   });
 </script>
 
@@ -72,11 +74,15 @@
   <title>{collectionName} sale</title>
 </svelte:head>
 
-<BuyNftModal count={buying.count} totalPrice={buying.totalPrice} bind:open={buyNftModalOpen}></BuyNftModal>
-<!-- <LoginModal bind:open={loginModalOpen}></LoginModal> -->
+<BuyNftModal
+  bind:open={buyNftModalOpen}
+  count={buying.count}
+  totalPrice={buying.totalPrice}
+  on:success={fetchData}
+></BuyNftModal>
+<LoginModal bind:open={loginModalOpen}></LoginModal>
 
 <div class="flex flex-col pt-10 min-w-0">
-  <Login></Login>
   {#if saleSettings}
     <div class="flex flex-col grow">
       <img class="grow object-cover h-44 bg-gray-300 mb-12 rounded-xl max-w-6xl" src="{banner}" alt="{collectionName} banner">
@@ -88,17 +94,17 @@
       <div>{description}</div>
 
       <div class="flex flex-wrap justify-center mt-10 gap-7">
-          {#if saleStatus == 'waiting'}
-            <div class="flex flex-col px-16">
-              <div>START DATE</div>
-              <div class="text-2xl font-bold">{startDateText}</div>
-            </div>
-          {:else if saleStatus == 'ended'}
-            <div class="flex flex-col px-16">
-              <div>END DATE</div>
-              <div class="text-2xl font-bold">sale ended</div>
-            </div>
-          {/if}
+        {#if saleStatus == 'waiting'}
+          <div class="flex flex-col px-16">
+            <div>START DATE</div>
+            <div class="text-2xl font-bold">{startDateText}</div>
+          </div>
+        {:else if saleStatus == 'ended'}
+          <div class="flex flex-col px-16">
+            <div>END DATE</div>
+            <div class="text-2xl font-bold">sale ended</div>
+          </div>
+        {/if}
         <div class="flex flex-col px-16">
           <div>AVAILABLE</div>
           <div class="text-2xl font-bold">{saleSettings.remaining ?? '-'}</div>
@@ -120,13 +126,11 @@
           {/if}
           <div class="flex flex-wrap justify-center gap-20">
             {#each saleSettings.bulkPricing as [count, price]}
-              <Button disabled={saleStatus == 'waiting'} on:click={() => buy(count, Number(price) / 100000000)}>BUY {count} NFTS<br>FOR {(Number(price) / 100000000).toFixed(2)} ICP</Button>
+              <Button disabled={saleStatus == 'waiting'} on:click={() => buy(count, price)}>BUY {count} NFT<br>FOR {(Number(price) / 100000000).toFixed(2)} ICP</Button>
             {/each}
           </div>
         </div>
       {:else if saleStatus == 'ended'}
-        <div class="text-5xl">SALE ENDED</div>
-      {:else}
         <div class="text-5xl">SOLD OUT</div>
       {/if}
     </div>

@@ -138,9 +138,7 @@ export const createStore = ({
 
     // Fetch root key for certificate validation during development
     if (process.env.NODE_ENV !== "production") {
-      window.ic.plug.agent.fetchRootKey().then((res) => {
-        console.log('root key fetched', res);
-      }).catch((err) => {
+      window.ic.plug.agent.fetchRootKey().catch((err) => {
         console.warn(
           "Unable to fetch root key. Check to ensure that your local replica is running",
         );
@@ -252,7 +250,3 @@ declare global {
     };
   }
 }
-
-
-window.store = store;
-window.get = get;
