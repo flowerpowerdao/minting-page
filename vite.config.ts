@@ -100,6 +100,9 @@ console.log(canisterDefinitions);
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [svelte()],
+  build: {
+    target: 'es2020',
+  },
   resolve: {
     alias: {
       // Here we tell Vite the "fake" modules that we want to define

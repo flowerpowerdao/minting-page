@@ -12,8 +12,8 @@ const config = {
         //But others, like autoprefixer, need to run after,
         autoprefixer(),
         !dev && cssnano({
-			preset: "default",
-		})
+          preset: "default",
+        })
     ],
 };
 
