@@ -18,7 +18,7 @@ In Plug add a local network with following settings:
 
 Network name = local
 
-Host URL = http://127.0.0.1:8000
+Host URL = http://127.0.0.1:4943
 
 Ledger canister Id = ryjl3-tyaaa-aaaaa-aaaba-cai
 
