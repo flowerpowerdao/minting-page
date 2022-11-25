@@ -4,7 +4,7 @@
   import { store } from "../store";
 
   import Button from "./Button.svelte";
-  import spinner from "../assets/loading.gif";
+  import Loader from "./Loader.svelte";
 
   export let loading;
   export let toggleModal;
@@ -32,7 +32,7 @@
   disabled={loading}
 >
   {#if loading === "stoic"}
-    <img class="h-6 block h-" src={spinner} alt="loading animation" />
+    <Loader></Loader>
   {:else}
     stoic
   {/if}

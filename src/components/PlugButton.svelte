@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import { store } from "../store";
 
-  import spinner from "../assets/loading.gif";
   import Button from "./Button.svelte";
+  import Loader from "./Loader.svelte";
 
   export let loading;
   export let toggleModal;
@@ -30,7 +30,7 @@
   disabled={loading}
 >
   {#if loading === "plug"}
-    <img class="h-6 block" src={spinner} alt="loading animation" />
+    <Loader></Loader>
   {:else}
     plug
   {/if}

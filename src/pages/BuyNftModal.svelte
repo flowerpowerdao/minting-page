@@ -3,14 +3,15 @@
   import Modal from "../components/Modal.svelte";
   import { store } from "../store";
   import { get } from "svelte/store";
+  import Loader from "../components/Loader.svelte";
 
   export let open;
   export let count: number;
   export let totalPrice: number;
 
-  let buying = false;
-  let canClose = false;
+  let step: 'confirm' | 'buying' | 'bought' | 'error' = 'confirm';
   let progressText = '';
+  let errorText = '';
 
   $: {
     if (!open) {
@@ -27,9 +28,9 @@
   };
 
   function reset() {
-    buying = false;
-    canClose = false;
+    step = 'confirm';
     progressText = '';
+    errorText = '';
   }
 
   async function close() {
@@ -38,7 +39,7 @@
 
   async function buy() {
     let state = get(store);
-    buying = true;
+    step = 'buying';
     progressText = 'Reserving NFT...';
 
     try {
@@ -82,19 +83,20 @@
         if ('err' in res)
           throw 'Your purchase failed! If ICP was sent and the sale ran out, you will be refunded shortly!';
       }
-      progressText = 'Your purchase was made successfully - your NFT will be sent to your address shortly';
+      
+      step = 'bought';
     } catch (err) {
-      progressText = 'ERROR: ' + err;
-      canClose = true;
+      step = 'error';
+      errorText = err;
       throw err;
     }
   }
 </script>
 
 <Modal title="Buy NFT" bind:open={open}>
-  {#if !buying}
+  {#if step == 'confirm'}
     <div class="flex flex-col gap-5">
-      <div class="text-xl text-left px-6 py-12">
+      <div class="text-xl text-left px-6 py-12 my-6">
         Are you sure you want to continue with this purchase of <b>{count}</b> NFT{count === 1 ? '' : 's'} for the total price of <b>{totalPrice}</b> ICP?
         All transactions are final on confirmation and can't be reversed.
       </div>
@@ -103,13 +105,26 @@
         <Button on:click={close}>Cancel</Button>
       </div>
     </div>
-  {:else}
-    <div class="flex justify-center">{progressText}</div>
-  {/if}
-
-  {#if canClose}
+  {:else if step == 'buying'}
+    <div class="flex items-center justify-center gap-5 my-20">
+      <Loader></Loader>
+      <div class="text-3xl">{progressText}</div>
+    </div>
+  {:else if step == 'bought'}
+    <div class="flex flex-col justify-center gap-5 my-8">
+      <div class="text-3xl text-green-800">Success!</div>
+      <div class="text-2xl">Your purchase was made successfully - your NFT will be sent to your address shortly!</div>
+    </div>
     <div class="flex gap-3 justify-end">
-      <Button on:click={close}>Cancel</Button>
+      <Button on:click={close}>Close</Button>
+    </div>
+  {:else if step == 'error'}
+    <div class="flex flex-col gap-5 my-8 text-left">
+      <div class="text-3xl text-red-800">Error :(</div>
+      <div class="text-2xl">{errorText}</div>
+    </div>
+    <div class="flex gap-3 justify-end">
+      <Button on:click={close}>Close</Button>
     </div>
   {/if}
 </Modal>
