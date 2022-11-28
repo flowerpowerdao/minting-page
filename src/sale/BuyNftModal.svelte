@@ -46,7 +46,7 @@
 
     try {
       // reserve
-      let accountId = window.ic.plug.sessionManager.sessionData.accountId;
+      let accountId = state.accountId;
       console.log('reserving for account', accountId);
       let res = await state.extActor.reserve(totalPrice, count, accountId, _getRandomBytes());
 
@@ -59,17 +59,7 @@
 
       // transfer ICP
       progressText = 'Transferring ICP...';
-      if (state.isAuthed === 'plug') {
-        console.log('sending')
-        let hight = await window.ic.plug.requestTransfer({
-          to: payToAddress,
-          amount: Number(priceToPay),
-          opts: {
-            fee: 10000,
-          },
-        });
-        console.log('sent', hight)
-      }
+      await store.transfer(payToAddress, priceToPay);
 
       // retreive
       progressText = 'Completing purchase...';
