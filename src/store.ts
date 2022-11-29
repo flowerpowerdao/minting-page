@@ -42,7 +42,7 @@ const defaultState: State = {
   extActor: createActor(canisterId, { agentOptions: { host: HOST } }),
   ledgerActor: null,
   principal: null,
-  accountId: null,
+  accountId: "",
   error: "",
   isLoading: false,
 };
@@ -57,12 +57,19 @@ export const createStore = ({
   const { subscribe, update } = writable<State>(defaultState);
 
   let isConnectedPromise: Promise<boolean>;
+  let connected: boolean = null;
   const isConnected = () => {
+    if (connected != null) {
+      return connected;
+    }
     // prevent opening multiple Plug modals
     if (isConnectedPromise) {
       return isConnectedPromise;
     }
-    isConnectedPromise = checkIsConnected().finally(() => {
+    isConnectedPromise = checkIsConnected().then((val) => {
+      connected = val;
+      return val;
+    }).finally(() => {
       isConnectedPromise = null;
     });
     return isConnectedPromise;
@@ -92,6 +99,7 @@ export const createStore = ({
         identity = await StoicIdentity.connect();
       }
       initStoic(identity);
+      connected = true;
     });
   };
 
@@ -142,8 +150,8 @@ export const createStore = ({
     }
 
     // check if plug is connected
-    const connected = await window.ic?.plug?.isConnected();
-    if (!connected) {
+    const plugConnected = await window.ic?.plug?.isConnected();
+    if (!plugConnected) {
       try {
         console.log({
           whitelist,
@@ -161,6 +169,7 @@ export const createStore = ({
     }
 
     await initPlug();
+    connected = true;
   };
 
   const initPlug = async () => {
@@ -217,7 +226,6 @@ export const createStore = ({
   async function transfer(toAddress: string, amount: bigint) {
     let state = get(store);
 
-
     if (state.isAuthed === 'plug') {
       let hight = await window.ic.plug.requestTransfer({
         to: toAddress,
@@ -249,6 +257,10 @@ export const createStore = ({
     // wait for 500ms to ensure that the disconnection is complete
     await new Promise((resolve) => setTimeout(resolve, 500));
     console.log("plug status: ", await window.ic?.plug?.isConnected());
+
+    isConnectedPromise = null;
+    connected = null;
+    
     update((prevState) => {
       return {
         ...defaultState,
