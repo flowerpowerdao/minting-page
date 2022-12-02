@@ -9,11 +9,11 @@
         },
         "ledger": {
             "type": "custom",
-            "wasm": "./ledger/ledger.wasm",
-            "candid": "./ledger/ledger.private.did",
+            "wasm": "./src/declarations/ledger/ledger.wasm",
+            "candid": "./src/declarations/ledger/ledger.private.did",
             "build": "",
             "remote": {
-                "candid": "./ledger/ledger.public.did",
+                "candid": "./src/declarations/ledger/ledger.public.did",
                 "id": {
                     "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
                 }
