@@ -13,6 +13,9 @@ import {
     idlFactory as ledgerIdlFactory,
     canisterId as ledgerCanisterId,
 } from "./declarations/ledger";
+// we can't use the canister id from the ext declarations, as
+// we don't deploy the NFT canister from within this project,
+// we just reference them
 import { canisterId as extCanisterId } from "./collection";
 
 export const HOST =
@@ -51,42 +54,6 @@ export const createStore = ({
 }) => {
     const { subscribe, update } = writable<State>(defaultState);
 
-    let isConnectedPromise: Promise<boolean>;
-    let connected: boolean = null;
-    const isConnected = () => {
-        if (connected != null) {
-            return connected;
-        }
-        // prevent opening multiple Plug modals
-        if (isConnectedPromise) {
-            return isConnectedPromise;
-        }
-        isConnectedPromise = checkIsConnected()
-            .then((val) => {
-                connected = val;
-                return val;
-            })
-            .finally(() => {
-                isConnectedPromise = null;
-            });
-        return isConnectedPromise;
-    };
-
-    const checkIsConnected = async () => {
-        let plugConnected = await window.ic?.plug?.isConnected();
-        if (plugConnected) {
-            await initPlug();
-            return true;
-        }
-
-        let stoicIdentity = await StoicIdentity.load();
-        if (stoicIdentity) {
-            await initStoic(stoicIdentity);
-        }
-
-        return stoicIdentity !== false;
-    };
-
     const stoicConnect = () => {
         StoicIdentity.load().then(async (identity) => {
             if (identity !== false) {
@@ -96,43 +63,45 @@ export const createStore = ({
                 identity = await StoicIdentity.connect();
             }
             initStoic(identity);
-            connected = true;
         });
     };
 
     const initStoic = async (identity: Identity & { accounts(): string }) => {
         console.trace("initStoic");
-        const actor = createActor(canisterId, {
+
+        const extActor = createExtActor(extCanisterId, {
             agentOptions: {
                 identity,
                 host: HOST,
             },
         });
 
-        if (!actor) {
+        const ledgerActor = createLedgerActor(ledgerCanisterId, {
+            agentOptions: {
+                identity,
+                host: HOST,
+            },
+        });
+
+        if (!extActor || !ledgerActor) {
             console.warn("couldn't create actors");
             return;
         }
 
+        // the stoic agent provides an `accounts()` method that returns
+        // accounts assocaited with the principal
         let accounts = JSON.parse(await identity.accounts());
+
         update((state) => ({
             ...state,
             principal: identity.getPrincipal(),
-            accountId: accounts[0].address,
+            accountId: accounts[0].address, // we take the default account associated with the identity
         }));
-
-        const ledgerActor = Actor.createActor(ledgerIdlFactory, {
-            agent: new HttpAgent({
-                host: HOST,
-                identity: identity,
-            }),
-            canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
-        });
 
         update((state) => ({
             ...state,
-            extActor: actor,
-            ledgerActor: ledgerActor,
+            extActor,
+            ledgerActor,
             principal: identity.getPrincipal(),
             isAuthed: "stoic",
         }));
@@ -165,7 +134,6 @@ export const createStore = ({
         }
 
         await initPlug();
-        connected = true;
     };
 
     const initPlug = async () => {
@@ -254,9 +222,6 @@ export const createStore = ({
         await new Promise((resolve) => setTimeout(resolve, 500));
         console.log("plug status: ", await window.ic?.plug?.isConnected());
 
-        isConnectedPromise = null;
-        connected = null;
-
         update((prevState) => {
             return {
                 ...defaultState,
@@ -267,7 +232,6 @@ export const createStore = ({
     return {
         subscribe,
         update,
-        isConnected,
         plugConnect,
         stoicConnect,
         disconnect,
@@ -299,7 +263,9 @@ declare global {
                     whitelist?: string[];
                     host?: string;
                 }) => Promise<any>;
-                createActor: (options: {}) => Promise<ExtActor>;
+                createActor: (options: {}) => Promise<
+                    typeof ledger | typeof ext
+                >;
                 isConnected: () => Promise<boolean>;
                 disconnect: () => Promise<boolean>;
                 createAgent: (args?: {
