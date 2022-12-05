@@ -1,23 +1,12 @@
 <script lang="ts">
-    import { createActor } from "../declarations/ext/index.js";
     import { onMount } from "svelte";
     import formatDistance from "date-fns/formatDistance";
     import type { SaleSettings } from "../declarations/ext/staging.did";
-    import { canisterId } from "../collection";
     import { store } from "../store";
     import Button from "../components/Button.svelte";
-    import Login from "../components/Login.svelte";
     import BuyNftModal from "../components/BuyNftModal.svelte";
-    import LoginModal from "../components/LoginModal.svelte";
     import Loader from "../components/Loader.svelte";
-
-    let collectionName = "ICP Flower";
-    let description =
-        "The final part of the Flower Power DAO Trilogy, the continuation of Ludo’s physical to digital initiative, and the dawn of a community-curated art hub. This collection finalizes the historic arc of Ludo’s visionary story for blockchain—one that began with the 2018 “R.I.P Banking System” BTC Flower and closes with the now “R.I.P Big Tech” ICP Flower. Both are symbols of our shared dream for the future created to inspire hope during times of peak uncertainty. While it marks the end of an era, it only completes the first step of our story as we now shift toward making new art the vessel through which these stories can reach a critical mass, and make real the dream our flowers represent. What comes next is third-party art, curated by this community, grown from flower seeds, incentivized by FP DAO, and provided for by the finest artists, through which flower holders, of course, remain the exclusive access members.";
-    let banner =
-        "https://s3.amazonaws.com/pf-user-files-01/u-166728/uploads/2022-10-25/6u23w8i/collectionbanner_comp1.jpg";
-    let logo =
-        "https://s3.amazonaws.com/pf-user-files-01/u-166728/uploads/2022-10-25/d113wr4/avatar_comp1.jpg";
+    import { collection } from "../collection";
 
     let saleSettings: SaleSettings;
     let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
@@ -57,9 +46,9 @@
         });
     };
 
-    onMount(() => {
+    onMount(async () => {
         let timer = setInterval(fetchData, 10000);
-        fetchData();
+        await fetchData();
 
         return () => {
             clearInterval(timer);
@@ -68,37 +57,38 @@
 </script>
 
 <svelte:head>
-    <title>{collectionName} sale</title>
+    <title>{collection.name} sale</title>
 </svelte:head>
 
-<BuyNftModal
+<!-- <BuyNftModal
     bind:open={buyNftModalOpen}
     count={buying.count}
     totalPrice={buying.totalPrice}
     on:success={fetchData}
-/>
-<LoginModal bind:open={loginModalOpen} />
+/> -->
+<!-- <LoginModal bind:open={loginModalOpen} /> -->
 
 <div class="flex flex-col pt-10 min-w-0">
     {#if saleSettings}
         <div class="flex flex-col grow">
+            hi
             <img
                 class="grow object-cover h-44 bg-gray-300 mb-12 rounded-xl max-w-6xl"
-                src={banner}
-                alt="{collectionName} banner"
+                src={collection.banner}
+                alt="{collection.name} banner"
             />
             <img
                 class="logo object-cover"
-                src={logo}
-                alt="{collectionName} logo"
+                src={collection.logo}
+                alt="{collection.name} logo"
             />
         </div>
 
         <div
             class="flex flex-col justify-center gap-12 text-center max-w-6xl mb-40 dark:text-white"
         >
-            <div class="text-4xl font-semibold">{collectionName}</div>
-            <div>{description}</div>
+            <div class="text-4xl font-semibold">{collection.name}</div>
+            <div>{collection.description}</div>
 
             <div class="flex flex-wrap justify-center mt-10 gap-7">
                 {#if saleStatus == "waiting"}
@@ -174,19 +164,3 @@
         <div class="text-5xl m-auto pt-40">Loading...</div>
     {/if}
 </div>
-
-<style>
-    img {
-        -webkit-user-drag: none;
-    }
-
-    .logo {
-        position: relative;
-        top: -100px;
-        margin: 0 auto;
-        border: 10px solid white;
-        border-radius: 50%;
-        height: 120px;
-        width: 120px;
-    }
-</style>

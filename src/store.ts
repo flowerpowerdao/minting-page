@@ -18,7 +18,7 @@ import {
 // we can't use the canister id from the ext declarations, as
 // we don't deploy the NFT canister from within this project,
 // we just reference them
-import { canisterId as extCanisterId } from "./collection";
+import { collection } from "./collection";
 
 export const HOST =
     process.env.DFX_NETWORK !== "ic"
@@ -37,7 +37,9 @@ type State = {
 
 const defaultState: State = {
     isAuthed: null,
-    extActor: createExtActor(extCanisterId, { agentOptions: { host: HOST } }),
+    extActor: createExtActor(collection.canisterId, {
+        agentOptions: { host: HOST },
+    }),
     ledgerActor: createLedgerActor(ledgerCanisterId, {
         agentOptions: { host: HOST },
     }),
@@ -71,7 +73,7 @@ export const createStore = ({
     const initStoic = async (identity: Identity & { accounts(): string }) => {
         console.trace("initStoic");
 
-        const extActor = createExtActor(extCanisterId, {
+        const extActor = createExtActor(collection.canisterId, {
             agentOptions: {
                 identity,
                 host: HOST,
@@ -168,7 +170,7 @@ export const createStore = ({
         }
 
         const extActor = (await window.ic?.plug.createActor({
-            canisterId: extCanisterId,
+            canisterId: collection.canisterId,
             interfaceFactory: extIdlFactory,
         })) as typeof ext;
 
@@ -242,7 +244,7 @@ export const createStore = ({
 
 export const store = createStore({
     whitelist: [
-        extCanisterId,
+        collection.canisterId,
         // 'ryjl3-tyaaa-aaaaa-aaaba-cai',
     ],
     host: HOST,
