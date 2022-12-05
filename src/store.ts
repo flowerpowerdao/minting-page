@@ -166,9 +166,9 @@ export const createStore = ({
         }
 
         const extActor = (await window.ic?.plug.createActor({
-            canisterId: canisterId,
-            interfaceFactory: idlFactory,
-        })) as ExtActor;
+            canisterId: extCanisterId,
+            interfaceFactory: extIdlFactory,
+        })) as typeof ext;
 
         if (!extActor) {
             console.warn("couldn't create actors");
@@ -188,9 +188,9 @@ export const createStore = ({
     };
 
     async function transfer(toAddress: string, amount: bigint) {
-        let state = get(store);
+        const store = get({ subscribe });
 
-        if (state.isAuthed === "plug") {
+        if (store.isAuthed === "plug") {
             let hight = await window.ic.plug.requestTransfer({
                 to: toAddress,
                 amount: Number(amount),
@@ -199,7 +199,7 @@ export const createStore = ({
                 },
             });
             console.log("sent", hight);
-        } else if (state.isAuthed === "stoic") {
+        } else if (store.isAuthed === "stoic") {
             let args = {
                 from_subaccount: [],
                 to: toAddress,
@@ -209,7 +209,7 @@ export const createStore = ({
                 created_at_time: [],
             };
             console.log("send_dfx...");
-            let res = await state.ledgerActor.send_dfx(args);
+            let res = await store.ledgerActor.send_dfx(args);
             console.log("sent", res);
         }
     }
@@ -241,7 +241,7 @@ export const createStore = ({
 
 export const store = createStore({
     whitelist: [
-        canisterId,
+        extCanisterId,
         // 'ryjl3-tyaaa-aaaaa-aaaba-cai',
     ],
     host: HOST,
