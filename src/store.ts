@@ -13,6 +13,7 @@ import {
     idlFactory as ledgerIdlFactory,
     canisterId as ledgerCanisterId,
 } from "./declarations/ledger";
+
 // we can't use the canister id from the ext declarations, as
 // we don't deploy the NFT canister from within this project,
 // we just reference them
