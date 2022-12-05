@@ -7,7 +7,7 @@
     import { store } from "../store";
     import Button from "../components/Button.svelte";
     import Login from "../components/Login.svelte";
-    import BuyNftModal from "./BuyNftModal.svelte";
+    import BuyNftModal from "../components/BuyNftModal.svelte";
     import LoginModal from "../components/LoginModal.svelte";
     import Loader from "../components/Loader.svelte";
 

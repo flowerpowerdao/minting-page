@@ -1,10 +1,10 @@
 <script lang="ts">
-  import Button from "../components/Button.svelte";
-  import Modal from "../components/Modal.svelte";
+  import Button from "./Button.svelte";
+  import Modal from "./Modal.svelte";
   import { store } from "../store";
   import { get } from "svelte/store";
   import { createEventDispatcher } from 'svelte';
-  import Loader from "../components/Loader.svelte";
+  import Loader from "./Loader.svelte";
 
   export let open;
   export let count: bigint;
