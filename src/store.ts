@@ -9,7 +9,7 @@ import { canisterId } from "./collection";
 
 export const HOST =
     process.env.NODE_ENV === "development"
-        ? "http://localhost:3000"
+        ? "http://localhost:4943"
         : "https://ic0.app";
 
 type Filters = {
