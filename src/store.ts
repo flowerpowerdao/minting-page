@@ -2,42 +2,40 @@ import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
 import { Actor, HttpAgent, type Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
-import { createActor, idlFactory } from "./declarations/ext";
-import { default as ledgerIdlFactory } from "./declarations/ledger/ledger.did";
-import type { _SERVICE as ExtActor } from "./declarations/ext/staging.did";
-import { canisterId } from "./collection";
+import {
+    ext,
+    createActor as createExtActor,
+    idlFactory as extIdlFactory,
+} from "./declarations/ext";
+import {
+    ledger,
+    createActor as createLedgerActor,
+    idlFactory as ledgerIdlFactory,
+    canisterId as ledgerCanisterId,
+} from "./declarations/ledger";
+import { canisterId as extCanisterId } from "./collection";
 
 export const HOST =
     process.env.NODE_ENV === "development"
         ? "http://localhost:4943"
         : "https://ic0.app";
 
-type Filters = {
-    open: boolean;
-    adopted: boolean;
-    rejected: boolean;
-};
-
 type State = {
     isAuthed: "plug" | "stoic" | null;
-    extActor: ExtActor;
-    ledgerActor: any;
+    extActor: typeof ext;
+    ledgerActor: typeof ledger;
     principal: Principal;
     accountId: string;
     error: string;
     isLoading: boolean;
 };
 
-export type NewProposal = {
-    title: string;
-    description: string;
-    options: string[];
-};
-
 const defaultState: State = {
     isAuthed: null,
-    extActor: createActor(canisterId, { agentOptions: { host: HOST } }),
-    ledgerActor: null,
+    extActor: createExtActor(extCanisterId, { agentOptions: { host: HOST } }),
+    ledgerActor: createLedgerActor(ledgerCanisterId, {
+        agentOptions: { host: HOST },
+    }),
     principal: null,
     accountId: "",
     error: "",
