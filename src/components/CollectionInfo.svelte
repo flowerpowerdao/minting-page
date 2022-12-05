@@ -6,6 +6,7 @@
     import formatDistance from "date-fns/formatDistance";
     import { onMount } from "svelte";
     import Loader from "../components/Loader.svelte";
+    import BuyNftButton from "./BuyNftButton.svelte";
 
     let saleSettings: SaleSettings;
     let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
@@ -15,13 +16,19 @@
     async function buy(count, totalPrice) {}
 
     let fetchData = async () => {
-        saleSettings = await $store.extActor.salesSettings($store.accountId);
+        try {
+            saleSettings = await $store.extActor.salesSettings(
+                $store.accountId
+            );
+        } catch (err) {
+            error = "Sale didn't start yet.";
+        }
 
         let startDate = new Date(Number(saleSettings.startTime / 1000000n));
 
         if (startDate.getTime() > Date.now()) {
             saleStatus = "waiting";
-        } else if (saleSettings.remaining) {
+        } else if (saleSettings.remaining > 0) {
             saleStatus = "ongoing";
         } else {
             saleStatus = "ended";
@@ -112,18 +119,7 @@
                 {/if}
                 <div class="flex flex-wrap justify-center gap-20">
                     {#each saleSettings.bulkPricing as [count, price]}
-                        <Button
-                            disabled={saleStatus == "waiting"}
-                            on:click={() => buy(count, price)}
-                        >
-                            {#if $store.isBuying}
-                                <Loader class="h-14" />
-                            {:else}
-                                BUY {count} NFT<br />FOR {(
-                                    Number(price) / 100000000
-                                ).toFixed(2)} ICP
-                            {/if}
-                        </Button>
+                        <BuyNftButton {count} {price} saleStatus />
                     {/each}
                 </div>
             </div>
@@ -132,10 +128,10 @@
         {/if}
     </div>
 {:else if error}
-    <details class="text-red-700 text-xl cursor-pointer">
-        <summary>Something went wrong</summary>
+    <div class="text-red-700 text-xl flex flex-col grow">
+        <div>Something went wrong</div>
         <div>{error}</div>
-    </details>
+    </div>
 {:else}
     <div class="text-5xl m-auto pt-40">Loading...</div>
 {/if}

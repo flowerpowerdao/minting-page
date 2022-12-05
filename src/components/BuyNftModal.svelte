@@ -5,9 +5,9 @@
   import { createEventDispatcher } from 'svelte';
   import Loader from "./Loader.svelte";
 
-  export let open;
+  export let toggleBuyModal;
   export let count: bigint;
-  export let totalPrice: bigint;
+  export let price: bigint;
 
   let step: 'confirm' | 'buying' | 'bought' | 'error' = 'confirm';
   let progressText = '';
@@ -20,6 +20,8 @@
     }
   };
 
+//   the method signature of `reserver` asks for a subaccount. 
+// that parameter isn't used though so we just pass random bytes
   const _getRandomBytes = () => {
     var bs = [];
     for (var i = 0; i < 32; i++) {
@@ -35,7 +37,7 @@
   }
 
   async function close() {
-    open = false;
+    // open = false;
   }
 
   async function buy() {
@@ -46,7 +48,7 @@
       // reserve
       let accountId = $store.accountId;
       console.log('reserving for account', accountId);
-      let res = await $store.extActor.reserve(totalPrice, count, accountId, _getRandomBytes());
+      let res = await $store.extActor.reserve(price, count, accountId, _getRandomBytes());
 
       if ('err' in res) {
         throw res.err;
@@ -85,11 +87,11 @@
   }
 </script>
 
-<Modal title="Buy NFT" toggleModal={open}>
+<Modal title="Buy NFT" toggleModal={toggleBuyModal}>
   {#if step == 'confirm'}
     <div class="flex flex-col gap-5">
       <div class="text-xl text-left px-6 py-12 my-6">
-        Are you sure you want to continue with this purchase of <b>{count}</b> NFT{count === 1n ? '' : 's'} for the total price of <b>{totalPrice / 100000000n}</b> ICP?
+        Are you sure you want to continue with this purchase of <b>{count}</b> NFT{count === 1n ? '' : 's'} for the total price of <b>{BigInt(price) / 100000000n}</b> ICP?
         All transactions are final on confirmation and can't be reversed.
       </div>
       <div class="flex gap-3 justify-end">
