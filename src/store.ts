@@ -19,7 +19,7 @@ import {
 import { canisterId as extCanisterId } from "./collection";
 
 export const HOST =
-    process.env.NODE_ENV === "development"
+    process.env.DFX_NETWORK === "development"
         ? "http://localhost:4943"
         : "https://ic0.app";
 
@@ -156,7 +156,7 @@ export const createStore = ({
         }
 
         // Fetch root key for certificate validation during development
-        if (process.env.NODE_ENV !== "production") {
+        if (process.env.DFX_NETWORK !== "ic") {
             window.ic.plug.agent.fetchRootKey().catch((err) => {
                 console.warn(
                     "Unable to fetch root key. Check to ensure that your local replica is running"
