@@ -2,6 +2,7 @@ import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
 import type { HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
+import { AccountIdentifier, SubAccount } from "@dfinity/nns";
 import {
     ext,
     createActor as createExtActor,
@@ -201,16 +202,15 @@ export const createStore = ({
             });
             console.log("sent", hight);
         } else if (store.isAuthed === "stoic") {
-            let args = {
-                from_subaccount: [],
-                to: toAddress,
-                amount: { e8s: amount },
-                fee: { e8s: 10000 },
-                memo: 0,
-                created_at_time: [],
-            };
             console.log("send_dfx...");
-            let res = await store.ledgerActor.send_dfx(args);
+            let res = await store.ledgerActor.transfer({
+                from_subaccount: [],
+                to: AccountIdentifier.fromHex(toAddress).toNumbers(),
+                amount: { e8s: amount },
+                fee: { e8s: 10000n },
+                memo: 0n,
+                created_at_time: [],
+            });
             console.log("sent", res);
         }
     }
