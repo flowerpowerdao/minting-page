@@ -2,7 +2,6 @@
   import Button from "./Button.svelte";
   import Modal from "./Modal.svelte";
   import { store } from "../store";
-  import { get } from "svelte/store";
   import { createEventDispatcher } from 'svelte';
   import Loader from "./Loader.svelte";
 
@@ -40,15 +39,14 @@
   }
 
   async function buy() {
-    let state = get(store);
     step = 'buying';
     progressText = 'Reserving NFT...';
 
     try {
       // reserve
-      let accountId = state.accountId;
+      let accountId = $store.accountId;
       console.log('reserving for account', accountId);
-      let res = await state.extActor.reserve(totalPrice, count, accountId, _getRandomBytes());
+      let res = await $store.extActor.reserve(totalPrice, count, accountId, _getRandomBytes());
 
       if ('err' in res) {
         throw res.err;
@@ -67,7 +65,7 @@
       while (true) {
         let res;
         try {
-          res = await state.extActor.retreive(payToAddress);
+          res = await $store.extActor.retreive(payToAddress);
         } catch (e) {
           continue;
         }
@@ -87,7 +85,7 @@
   }
 </script>
 
-<Modal title="Buy NFT" bind:open={open}>
+<Modal title="Buy NFT" toggleModal={open}>
   {#if step == 'confirm'}
     <div class="flex flex-col gap-5">
       <div class="text-xl text-left px-6 py-12 my-6">

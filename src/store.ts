@@ -33,6 +33,7 @@ type State = {
     accountId: string;
     error: string;
     isLoading: boolean;
+    isBuying: boolean;
 };
 
 const defaultState: State = {
@@ -47,6 +48,7 @@ const defaultState: State = {
     accountId: "",
     error: "",
     isLoading: false,
+    isBuying: false,
 };
 
 export const createStore = ({
