@@ -1,6 +1,6 @@
 import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
-import { Actor, HttpAgent, type Identity } from "@dfinity/agent";
+import type { HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
 import {
     ext,
