@@ -19,7 +19,7 @@ import {
 import { canisterId as extCanisterId } from "./collection";
 
 export const HOST =
-    process.env.DFX_NETWORK === "development"
+    process.env.DFX_NETWORK !== "ic"
         ? "http://localhost:4943"
         : "https://ic0.app";
 
