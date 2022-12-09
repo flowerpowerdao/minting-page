@@ -1,50 +1,54 @@
 import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
-import { Actor, HttpAgent, type Identity } from "@dfinity/agent";
+import type { HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
+import { AccountIdentifier, SubAccount } from "@dfinity/nns";
 import {
-  createActor,
-  idlFactory,
+  ext,
+  createActor as createExtActor,
+  idlFactory as extIdlFactory,
 } from "./declarations/ext";
-import {default as ledgerIdlFactory} from "./declarations/ledger/ledger.did";
-import type { _SERVICE as ExtActor } from "./declarations/ext/staging.did";
-import { canisterId } from "./collection";
+import {
+  ledger,
+  createActor as createLedgerActor,
+  idlFactory as ledgerIdlFactory,
+  canisterId as ledgerCanisterId,
+} from "./declarations/ledger";
+
+// we can't use the canister id from the ext declarations, as
+// we don't deploy the NFT canister from within this project,
+// we just reference them
+import { collection } from "./collection";
 
 export const HOST =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:3000"
+  process.env.DFX_NETWORK !== "ic"
+    ? "http://localhost:4943"
     : "https://ic0.app";
-
-type Filters = {
-  open: boolean;
-  adopted: boolean;
-  rejected: boolean;
-};
 
 type State = {
   isAuthed: "plug" | "stoic" | null;
-  extActor: ExtActor;
-  ledgerActor: any;
+  extActor: typeof ext;
+  ledgerActor: typeof ledger;
   principal: Principal;
   accountId: string;
   error: string;
   isLoading: boolean;
-};
-
-export type NewProposal = {
-  title: string;
-  description: string;
-  options: string[];
+  isBuying: boolean;
 };
 
 const defaultState: State = {
   isAuthed: null,
-  extActor: createActor(canisterId, { agentOptions: { host: HOST } }),
-  ledgerActor: null,
+  extActor: createExtActor(collection.canisterId, {
+    agentOptions: { host: HOST },
+  }),
+  ledgerActor: createLedgerActor(ledgerCanisterId, {
+    agentOptions: { host: HOST },
+  }),
   principal: null,
   accountId: "",
   error: "",
   isLoading: false,
+  isBuying: false,
 };
 
 export const createStore = ({
@@ -56,40 +60,6 @@ export const createStore = ({
 }) => {
   const { subscribe, update } = writable<State>(defaultState);
 
-  let isConnectedPromise: Promise<boolean>;
-  let connected: boolean = null;
-  const isConnected = () => {
-    if (connected != null) {
-      return connected;
-    }
-    // prevent opening multiple Plug modals
-    if (isConnectedPromise) {
-      return isConnectedPromise;
-    }
-    isConnectedPromise = checkIsConnected().then((val) => {
-      connected = val;
-      return val;
-    }).finally(() => {
-      isConnectedPromise = null;
-    });
-    return isConnectedPromise;
-  };
-  
-  const checkIsConnected = async () => {
-    let plugConnected = await window.ic?.plug?.isConnected();
-    if (plugConnected) {
-      await initPlug();
-      return true;
-    }
-
-    let stoicIdentity = await StoicIdentity.load();
-    if (stoicIdentity) {
-      await initStoic(stoicIdentity);
-    }
-
-    return stoicIdentity !== false;
-  };
-
   const stoicConnect = () => {
     StoicIdentity.load().then(async (identity) => {
       if (identity !== false) {
@@ -99,48 +69,49 @@ export const createStore = ({
         identity = await StoicIdentity.connect();
       }
       initStoic(identity);
-      connected = true;
     });
   };
 
   const initStoic = async (identity: Identity & { accounts(): string }) => {
-    console.trace('initStoic')
-    const actor = createActor(canisterId, {
+    console.trace("initStoic");
+
+    const extActor = createExtActor(collection.canisterId, {
       agentOptions: {
         identity,
         host: HOST,
       },
     });
 
-    if (!actor) {
+    const ledgerActor = createLedgerActor(ledgerCanisterId, {
+      agentOptions: {
+        identity,
+        host: HOST,
+      },
+    });
+
+    if (!extActor || !ledgerActor) {
       console.warn("couldn't create actors");
       return;
     }
-    
+
+    // the stoic agent provides an `accounts()` method that returns
+    // accounts assocaited with the principal
     let accounts = JSON.parse(await identity.accounts());
+
     update((state) => ({
       ...state,
       principal: identity.getPrincipal(),
-      accountId: accounts[0].address,
+      accountId: accounts[0].address, // we take the default account associated with the identity
     }));
-    
-
-    const ledgerActor = Actor.createActor(ledgerIdlFactory, {
-      agent: new HttpAgent({
-        host: HOST,
-        identity: identity,
-      }),
-      canisterId: 'ryjl3-tyaaa-aaaaa-aaaba-cai',
-    });
 
     update((state) => ({
       ...state,
-      extActor: actor,
-      ledgerActor: ledgerActor,
+      extActor,
+      ledgerActor,
       principal: identity.getPrincipal(),
       isAuthed: "stoic",
     }));
-  }
+  };
 
   const plugConnect = async () => {
     // check if plug is installed in the browser
@@ -156,7 +127,7 @@ export const createStore = ({
         console.log({
           whitelist,
           host,
-        })
+        });
         await window.ic?.plug.requestConnect({
           whitelist,
           host,
@@ -169,7 +140,6 @@ export const createStore = ({
     }
 
     await initPlug();
-    connected = true;
   };
 
   const initPlug = async () => {
@@ -192,19 +162,19 @@ export const createStore = ({
     }
 
     // Fetch root key for certificate validation during development
-    if (process.env.NODE_ENV !== "production") {
+    if (process.env.DFX_NETWORK !== "ic") {
       window.ic.plug.agent.fetchRootKey().catch((err) => {
         console.warn(
-          "Unable to fetch root key. Check to ensure that your local replica is running",
+          "Unable to fetch root key. Check to ensure that your local replica is running"
         );
         console.error(err);
       });
     }
 
     const extActor = (await window.ic?.plug.createActor({
-      canisterId: canisterId,
-      interfaceFactory: idlFactory,
-    })) as ExtActor;
+      canisterId: collection.canisterId,
+      interfaceFactory: extIdlFactory,
+    })) as typeof ext;
 
     if (!extActor) {
       console.warn("couldn't create actors");
@@ -224,29 +194,28 @@ export const createStore = ({
   };
 
   async function transfer(toAddress: string, amount: bigint) {
-    let state = get(store);
+    const store = get({ subscribe });
 
-    if (state.isAuthed === 'plug') {
-      let hight = await window.ic.plug.requestTransfer({
+    if (store.isAuthed === "plug") {
+      let height = await window.ic.plug.requestTransfer({
         to: toAddress,
         amount: Number(amount),
         opts: {
           fee: 10000,
         },
       });
-      console.log('sent', hight);
-    } else if (state.isAuthed === 'stoic') {
-      let args = {
+      console.log("sent", height);
+    } else if (store.isAuthed === "stoic") {
+      console.log("send_dfx...");
+      let res = await store.ledgerActor.transfer({
         from_subaccount: [],
-        to: toAddress,
+        to: AccountIdentifier.fromHex(toAddress).toNumbers(),
         amount: { e8s: amount },
-        fee: { e8s: 10000 },
-        memo: 0,
+        fee: { e8s: 10000n },
+        memo: 0n,
         created_at_time: [],
-      };
-      console.log('send_dfx...');
-      let res = await state.ledgerActor.send_dfx(args);
-      console.log('sent', res);
+      });
+      console.log("sent", res);
     }
   }
 
@@ -258,9 +227,6 @@ export const createStore = ({
     await new Promise((resolve) => setTimeout(resolve, 500));
     console.log("plug status: ", await window.ic?.plug?.isConnected());
 
-    isConnectedPromise = null;
-    connected = null;
-    
     update((prevState) => {
       return {
         ...defaultState,
@@ -268,11 +234,9 @@ export const createStore = ({
     });
   };
 
-
   return {
     subscribe,
     update,
-    isConnected,
     plugConnect,
     stoicConnect,
     disconnect,
@@ -282,7 +246,7 @@ export const createStore = ({
 
 export const store = createStore({
   whitelist: [
-    canisterId,
+    collection.canisterId,
     // 'ryjl3-tyaaa-aaaaa-aaaba-cai',
   ],
   host: HOST,
@@ -295,16 +259,16 @@ declare global {
         agent: HttpAgent;
         sessionManager: {
           sessionData: {
-            accountId: string,
-          },
-        },
+            accountId: string;
+          };
+        };
         getPrincipal: () => Promise<Principal>;
         deleteAgent: () => void;
         requestConnect: (options?: {
           whitelist?: string[];
           host?: string;
         }) => Promise<any>;
-        createActor: (options: {}) => Promise<ExtActor>;
+        createActor: (options: {}) => Promise<typeof ledger | typeof ext>;
         isConnected: () => Promise<boolean>;
         disconnect: () => Promise<boolean>;
         createAgent: (args?: {
@@ -326,7 +290,7 @@ declare global {
           amount: number;
           opts?: {
             fee?: number;
-            memo?: number;
+            memo?: string;
             from_subaccount?: number;
             created_at_time?: {
               timestamp_nanos: number;

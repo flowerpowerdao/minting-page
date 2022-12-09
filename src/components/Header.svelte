@@ -1,14 +1,49 @@
 <script lang="ts">
   import { store } from "../store";
+  import DarkMode from "./DarkMode.svelte";
   import Login from "./Login.svelte";
-  import Logout from "./Logout.svelte";
+  import Menu from "./Menu.svelte";
+
+  // get random number between 1 and 18
+  let randomLogo = Math.floor(Math.random() * 18) + 1;
 </script>
 
-<div class="flex justify-end">
-  {#if !$store.isAuthed}
-    <Login></Login>
-  {:else}
-    <div class="p-1 mx-5">{$store.principal?.toString().slice(0, 5) + "…" + $store.principal?.toString().slice(-3)}</div>
-    <Logout></Logout>
-  {/if}
+<!-- mobile -->
+<div class="lg:hidden">
+  <a href="/#">
+    <img
+      class="h-auto w-full dark:invert dark:border-none"
+      src={`/BP_FPDAO_Logo_BlackOnWhite_sRGB_${randomLogo}.svg`}
+      alt="fpdao logo"
+    />
+  </a>
+</div>
+
+<!-- desktop -->
+<div
+  class="hidden fixed top-0 lg:flex flex-row w-full justify-between {!$store.isAuthed
+    ? 'items-start'
+    : ''}"
+>
+  <a href="/#">
+    <img
+      class="h-auto max-h-28 w-full dark:invert dark:border-none"
+      src={`/BP_FPDAO_Logo_BlackOnWhite_sRGB_${randomLogo}.svg`}
+      alt="fpdao logo"
+    />
+  </a>
+  <div class="flex flex-row ">
+    <!-- we create a separate div where the item algined is end -->
+    <!-- https://stackoverflow.com/questions/66019763/stretching-items-in-a-flexbox-with-a-max-height -->
+    <div class="flex flex-row items-start">
+      <DarkMode />
+    </div>
+    {#if !$store.isAuthed}
+      <Login />
+    {:else}
+      <div class="flex-1 flex flex-col">
+        <Menu />
+      </div>
+    {/if}
+  </div>
 </div>
