@@ -197,14 +197,11 @@ export const createStore = ({
         const store = get({ subscribe });
 
         if (store.isAuthed === "plug") {
-            let hight = await window.ic.plug.requestTransfer({
+            let height = await window.ic.plug.requestTransfer({
                 to: toAddress,
-                amount: Number(amount),
-                opts: {
-                    fee: 10000,
-                },
+                amount: amount,
             });
-            console.log("sent", hight);
+            console.log("sent", height);
         } else if (store.isAuthed === "stoic") {
             console.log("send_dfx...");
             let res = await store.ledgerActor.transfer({
@@ -288,16 +285,16 @@ declare global {
                     }>
                 >;
                 requestTransfer: (arg: {
-                    to: string;
-                    amount: number;
-                    opts?: {
-                        fee?: number;
-                        memo?: number;
-                        from_subaccount?: number;
-                        created_at_time?: {
-                            timestamp_nanos: number;
-                        };
+                  to: string;
+                  amount: bigint;
+                  opts?: {
+                    fee?: bigint;
+                    memo?: bigint;
+                    from_subaccount?: number;
+                    created_at_time?: {
+                      timestamp_nanos: bigint;
                     };
+                  };
                 }) => Promise<{ height: number }>;
             };
         };

@@ -34,7 +34,7 @@
   };
 
   onMount(async () => {
-    let timer = setInterval(fetchData, 10000);
+    let timer = setInterval(fetchData, 1000);
     await fetchData();
 
     return () => {

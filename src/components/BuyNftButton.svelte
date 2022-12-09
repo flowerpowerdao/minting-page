@@ -12,17 +12,15 @@
 
     function toggleLoginModal() {
         openLoginModal = !openLoginModal;
-        console.log(openLoginModal);
     }
 
     function toggleBuyModal() {
         openBuyModal = !openBuyModal;
-        console.log(openBuyModal);
     }
 </script>
 
 <Button
-    disabled={saleStatus == "waiting"}
+    disabled={saleStatus === "waiting"}
     on:click={$store.isAuthed ? toggleBuyModal : toggleLoginModal}
 >
     {#if $store.isBuying}
