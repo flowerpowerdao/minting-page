@@ -1,7 +1,8 @@
 <script lang="ts">
-    import Footer from "./components/Footer.svelte";
-    import Header from "./components/Header.svelte";
-    import Sale from "./pages/Sale.svelte";
+  import "./global.css";
+  import Footer from "./components/Footer.svelte";
+  import Header from "./components/Header.svelte";
+  import Sale from "./pages/Sale.svelte";
 </script>
 
 <Header />

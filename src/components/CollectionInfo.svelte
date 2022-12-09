@@ -55,7 +55,7 @@
       alt="{collection.name} banner"
     />
     <img
-      class="logo object-cover rounded"
+      class="logo border-solid border-8 object-cover rounded border-[#f5f5f5] dark:border-black"
       src={collection.logo}
       alt="{collection.name} logo"
     />
@@ -139,7 +139,6 @@
     position: relative;
     top: -100px;
     margin: 0 auto;
-    border: 10px solid white;
     border-radius: 50%;
     height: 120px;
     width: 120px;
