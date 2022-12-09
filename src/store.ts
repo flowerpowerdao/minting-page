@@ -100,15 +100,10 @@ export const createStore = ({
 
     update((state) => ({
       ...state,
-      principal: identity.getPrincipal(),
-      accountId: accounts[0].address, // we take the default account associated with the identity
-    }));
-
-    update((state) => ({
-      ...state,
       extActor,
       ledgerActor,
       principal: identity.getPrincipal(),
+      accountId: accounts[0].address, // we take the default account associated with the identity
       isAuthed: "stoic",
     }));
   };
