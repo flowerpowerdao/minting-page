@@ -199,7 +199,10 @@ export const createStore = ({
         if (store.isAuthed === "plug") {
             let height = await window.ic.plug.requestTransfer({
                 to: toAddress,
-                amount: amount,
+                amount: Number(amount),
+                opts: {
+                  fee: 10000
+                }
             });
             console.log("sent", height);
         } else if (store.isAuthed === "stoic") {
@@ -286,13 +289,13 @@ declare global {
                 >;
                 requestTransfer: (arg: {
                   to: string;
-                  amount: bigint;
+                  amount: number;
                   opts?: {
-                    fee?: bigint;
-                    memo?: bigint;
+                    fee?: number;
+                    memo?: string;
                     from_subaccount?: number;
                     created_at_time?: {
-                      timestamp_nanos: bigint;
+                      timestamp_nanos: number;
                     };
                   };
                 }) => Promise<{ height: number }>;

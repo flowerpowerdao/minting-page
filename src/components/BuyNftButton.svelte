@@ -1,37 +1,37 @@
 <script lang="ts">
-    import Button from "./Button.svelte";
-    import Loader from "./Loader.svelte";
-    import { store } from "../store";
-    import LoginModal from "./LoginModal.svelte";
-    import BuyNftModal from "./BuyNftModal.svelte";
+  import Button from "./Button.svelte";
+  import Loader from "./Loader.svelte";
+  import { store } from "../store";
+  import LoginModal from "./LoginModal.svelte";
+  import BuyNftModal from "./BuyNftModal.svelte";
 
-    export let count, price, saleStatus;
+  export let count, price, saleStatus;
 
-    let openLoginModal = false;
-    let openBuyModal = false;
+  let openLoginModal = false;
+  let openBuyModal = false;
 
-    function toggleLoginModal() {
-        openLoginModal = !openLoginModal;
-    }
+  function toggleLoginModal() {
+    openLoginModal = !openLoginModal;
+  }
 
-    function toggleBuyModal() {
-        openBuyModal = !openBuyModal;
-    }
+  function toggleBuyModal() {
+    openBuyModal = !openBuyModal;
+  }
 </script>
 
 <Button
-    disabled={saleStatus === "waiting"}
-    on:click={$store.isAuthed ? toggleBuyModal : toggleLoginModal}
+  disabled={saleStatus === "waiting"}
+  on:click={$store.isAuthed ? toggleBuyModal : toggleLoginModal}
 >
-    {#if $store.isBuying}
-        <Loader class="h-14" />
-    {:else}
-        BUY {count} NFT<br />FOR {(Number(price) / 100000000).toFixed(2)} ICP
-    {/if}
+  {#if $store.isBuying}
+    <Loader class="h-14" />
+  {:else}
+    BUY {count} NFT<br />FOR {(Number(price) / 100000000).toFixed(2)} ICP
+  {/if}
 </Button>
 {#if openBuyModal}
-    <BuyNftModal {toggleBuyModal} {count} {price} />
+  <BuyNftModal {toggleBuyModal} {count} {price} />
 {/if}
 {#if openLoginModal}
-    <LoginModal toggleModal={toggleLoginModal} />
+  <LoginModal toggleModal={toggleLoginModal} />
 {/if}
