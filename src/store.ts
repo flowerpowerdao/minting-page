@@ -100,9 +100,6 @@ export const createStore = ({
     // accounts assocaited with the principal
     let accounts = JSON.parse(await identity.accounts());
 
-    // update the balance
-    await updateBalance();
-
     update((state) => ({
       ...state,
       extActor,
@@ -111,6 +108,8 @@ export const createStore = ({
       accountId: accounts[0].address, // we take the default account associated with the identity
       isAuthed: "stoic",
     }));
+
+    await updateBalance();
   };
 
   const plugConnect = async () => {
@@ -183,9 +182,6 @@ export const createStore = ({
 
     const principal = await window.ic.plug.agent.getPrincipal();
 
-    // update the balance
-    await updateBalance();
-
     update((state) => ({
       ...state,
       extActor,
@@ -194,34 +190,27 @@ export const createStore = ({
       isAuthed: "plug",
     }));
 
+    await updateBalance();
+
     console.log("plug is authed");
   };
 
   async function updateBalance() {
     const store = get({ subscribe });
+    let balance;
 
     if (store.isAuthed === "plug") {
       let result = await window.ic.plug.requestBalance();
       let ICP = result.find((asset) => asset.symbol === "ICP");
-      update((prevState) => {
-        return {
-          ...prevState,
-          balance: ICP.amount,
-        };
-      });
-      console.log(result);
+      balance = ICP.amount;
     } else if (store.isAuthed === "stoic") {
-      console.log("transfer...");
       let res = await store.ledgerActor.account_balance({
         account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
       });
-      update((prevState) => {
-        return {
-          ...prevState,
-          balance: Number(res.e8s / 100000000n),
-        };
-      });
+      balance = Number(res.e8s / 100000000n);
     }
+    console.log("balance", balance);
+    update((prevState) => ({ ...prevState, balance }));
   }
 
   async function transfer(toAddress: string, amount: bigint) {
@@ -236,8 +225,6 @@ export const createStore = ({
         },
       });
       console.log("sent", height);
-      updateBalance();
-      console.log("updated balance");
     } else if (store.isAuthed === "stoic") {
       console.log("transfer...");
       let res = await store.ledgerActor.transfer({
@@ -249,9 +236,9 @@ export const createStore = ({
         created_at_time: [],
       });
       console.log("sent", res);
-      updateBalance();
-      console.log("updated balance");
     }
+    await updateBalance();
+    console.log("updated balance");
   }
 
   const disconnect = async () => {
@@ -276,7 +263,6 @@ export const createStore = ({
     stoicConnect,
     disconnect,
     transfer,
-    updateBalance,
   };
 };
 
