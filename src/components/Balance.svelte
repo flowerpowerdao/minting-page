@@ -10,6 +10,6 @@
   {#if $store.isLoading}
     <img class="h-6" src={spinner} alt="loading animation" />
   {:else}
-    {$store.balance} ICP
+    {$store.balance.toFixed(2)} ICP
   {/if}
 </div>

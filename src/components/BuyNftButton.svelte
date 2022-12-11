@@ -20,6 +20,7 @@
 </script>
 
 <Button
+  style={"max-w-[150px] lg:h-16 2xl:h-20"}
   disabled={saleStatus === "waiting"}
   on:click={$store.isAuthed ? toggleBuyModal : toggleLoginModal}
 >
