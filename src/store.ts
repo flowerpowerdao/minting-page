@@ -34,6 +34,7 @@ type State = {
   error: string;
   isLoading: boolean;
   isBuying: boolean;
+  balance: number;
 };
 
 const defaultState: State = {
@@ -49,6 +50,7 @@ const defaultState: State = {
   error: "",
   isLoading: false,
   isBuying: false,
+  balance: 0,
 };
 
 export const createStore = ({
@@ -97,6 +99,9 @@ export const createStore = ({
     // the stoic agent provides an `accounts()` method that returns
     // accounts assocaited with the principal
     let accounts = JSON.parse(await identity.accounts());
+
+    // update the balance
+    await updateBalance();
 
     update((state) => ({
       ...state,
@@ -177,6 +182,10 @@ export const createStore = ({
     }
 
     const principal = await window.ic.plug.agent.getPrincipal();
+
+    // update the balance
+    await updateBalance();
+
     update((state) => ({
       ...state,
       extActor,
@@ -187,6 +196,33 @@ export const createStore = ({
 
     console.log("plug is authed");
   };
+
+  async function updateBalance() {
+    const store = get({ subscribe });
+
+    if (store.isAuthed === "plug") {
+      let result = await window.ic.plug.requestBalance();
+      let ICP = result.find((asset) => asset.symbol === "ICP");
+      update((prevState) => {
+        return {
+          ...prevState,
+          balance: ICP.amount,
+        };
+      });
+      console.log(result);
+    } else if (store.isAuthed === "stoic") {
+      console.log("transfer...");
+      let res = await store.ledgerActor.account_balance({
+        account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
+      });
+      update((prevState) => {
+        return {
+          ...prevState,
+          balance: Number(res.e8s / 100000000n),
+        };
+      });
+    }
+  }
 
   async function transfer(toAddress: string, amount: bigint) {
     const store = get({ subscribe });
@@ -200,8 +236,10 @@ export const createStore = ({
         },
       });
       console.log("sent", height);
+      updateBalance();
+      console.log("updated balance");
     } else if (store.isAuthed === "stoic") {
-      console.log("send_dfx...");
+      console.log("transfer...");
       let res = await store.ledgerActor.transfer({
         from_subaccount: [],
         to: AccountIdentifier.fromHex(toAddress).toNumbers(),
@@ -211,6 +249,8 @@ export const createStore = ({
         created_at_time: [],
       });
       console.log("sent", res);
+      updateBalance();
+      console.log("updated balance");
     }
   }
 
@@ -236,6 +276,7 @@ export const createStore = ({
     stoicConnect,
     disconnect,
     transfer,
+    updateBalance,
   };
 };
 

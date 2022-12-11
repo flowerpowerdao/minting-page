@@ -1,5 +1,6 @@
 <script lang="ts">
   import { store } from "../store";
+  import Balance from "./Balance.svelte";
   import DarkMode from "./DarkMode.svelte";
   import Login from "./Login.svelte";
   import Menu from "./Menu.svelte";
@@ -42,6 +43,7 @@
       <Login />
     {:else}
       <div class="flex-1 flex flex-col">
+        <Balance />
         <Menu />
       </div>
     {/if}
