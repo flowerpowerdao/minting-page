@@ -22,7 +22,7 @@
 
 <!-- desktop -->
 <div
-  class="hidden fixed top-0 lg:flex flex-row w-full justify-between {!$store.isAuthed
+  class="hidden fixed z-10 top-0 lg:flex flex-row w-full justify-between {!$store.isAuthed
     ? 'items-start'
     : ''}"
 >
