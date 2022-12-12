@@ -16,6 +16,6 @@
 </div>
 
 <!-- desktop -->
-<div class="hidden lg:flex pt-40 pb-8 justify-between mx-[11%] flex-col">
+<div class="hidden lg:flex items-center pt-40 pb-8 justify-between mx-[11%] flex-col">
     <CollectionInfo />
 </div>
