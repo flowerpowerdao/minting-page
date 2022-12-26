@@ -106,13 +106,13 @@
 
 <Modal title="Buy NFT" toggleModal={toggleBuyModal}>
   {#if step == "confirm"}
-    <div class="mt-2 dark:text-white lg:text-3xl 2xl:text-4xl">
+    <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
       Are you sure you want to continue with this purchase of <b>{count}</b>
       NFT{count === 1n ? "" : "s"} for the total price of
       <b>{BigInt(price) / 100000000n}</b> ICP? All transactions are final on confirmation
       and can't be reversed.
     </div>
-    <div class="flex gap-3 flex-col flex-1 justify-center items-center">
+    <div class="flex gap-3 flex-col flex-1 justify-center items-center mt-6">
       <Button
         on:click={buy}
         disabled={loading}
@@ -135,22 +135,22 @@
       <div class="text-3xl">{progressText}</div>
     </div>
   {:else if step == "bought"}
-    <div class="mt-2 dark:text-white lg:text-3xl 2xl:text-4xl">
+    <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
       Your purchase was made successfully - your NFT will be sent to your
       address shortly!
     </div>
-    <div class="flex gap-3 flex-col flex-1 justify-center items-center">
+    <div class="flex gap-3 flex-col flex-1 justify-center items-center mt-6">
       <Button
         on:click={toggleBuyModal}
         style={"lg:h-16 2xl:h-20 lg:rounded-[55px]"}>close</Button
       >
     </div>
   {:else if step == "error"}
-    <div class="flex flex-col justify-center gap-5 my-8">
-      <div class="mt-2 dark:text-white lg:text-3xl 2xl:text-4xl">
+    <div class="flex flex-col justify-center gap-5">
+      <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
         {errorText}
       </div>
-      <div class="flex gap-3 flex-col flex-1 justify-center items-center">
+      <div class="flex gap-3 flex-col flex-1 justify-center items-center mt-6">
         <Button
           on:click={toggleBuyModal}
           style={"lg:h-16 2xl:h-20 lg:rounded-[55px]"}>close</Button
