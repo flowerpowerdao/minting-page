@@ -60,6 +60,8 @@ for (let [nftName, dir] of Object.entries(flowerNFTs)) {
   }
 }
 
+
+
 // List of all aliases for canisters
 // This will allow us to: import { canisterName } from "canisters/canisterName"
 const aliases = Object.entries(dfxJson.canisters || {}).reduce(
@@ -94,7 +96,7 @@ const canisterDefinitions = Object.entries(canisterIds).reduce(
   {}
 );
 
-console.log(canisterDefinitions);
+console.warn(canisterDefinitions);
 
 // See guide on how to configure Vite at:
 // https://vitejs.dev/config/
@@ -131,6 +133,6 @@ export default defineConfig({
     "process.env.NODE_ENV": JSON.stringify(
       isDev ? "development" : "production"
     ),
-    global: "globalThis",
+    "process.env.DFX_NETWORK": JSON.stringify(isDev ? "local" : "ic"),
   },
 });
