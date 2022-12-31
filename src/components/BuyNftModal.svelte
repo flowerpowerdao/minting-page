@@ -1,9 +1,9 @@
 <script lang="ts">
+  import { confetti } from "@neoconfetti/svelte";
   import Button from "./Button.svelte";
   import Modal from "./Modal.svelte";
   import { store } from "../store";
   import spinner from "../assets/loading.gif";
-  import { createEventDispatcher } from "svelte";
   import Loader from "./Loader.svelte";
   import { fromErr, fromOk, isErr } from "../utils";
 
@@ -135,6 +135,15 @@
       <div class="text-3xl">{progressText}</div>
     </div>
   {:else if step == "bought"}
+    <div class="fixed bottom-2/4 left-2/4 pointer-events-none">
+      <div use:confetti={{
+        particleCount: 100,
+        colors: ["#BB64D2", "#24A0F5", "#FED030", "#FC514B"],
+        stageHeight: 1900,
+        particleShape: 'circles',
+        force: 0.6,
+      }}></div>
+    </div>
     <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
       Your purchase was made successfully - your NFT will be sent to your
       address shortly!
