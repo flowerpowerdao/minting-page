@@ -6,6 +6,7 @@
 -   install [Vessel](https://github.com/dfinity/vessel)
 -   install [Plug](https://plugwallet.ooo/)
 -   clone the repository and run `git submodule init` and `git submodule update`. this pulls the submodules the project depends on
+-   `cd icpflower-nft-canister` and run `vessel install` to install the depenedencies
 -   run `npm install` from root
 -   create a `set-deploy-env.zsh` file in the root directory according to the following example and replace the `WALLET_ADDRESS` with your Plug wallet address
 
