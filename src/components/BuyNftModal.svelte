@@ -18,6 +18,8 @@
   let progressText = "";
   let errorText = "";
   let boughtTokenIndex: number;
+  let resolveConfetti;
+  let confettiPromise: Promise<void>;
 
   $: console.log(step);
 
@@ -96,8 +98,20 @@
       if ('ok' in tokens) {
         boughtTokenIndex = tokens.ok.at(-1);
       }
-      
+
       step = "bought";
+
+      // if preview enabled wait a while for the preview to load
+      if (collection.previewEnabled) {
+        confettiPromise = new Promise((resolve) => {
+          resolveConfetti = () => {
+            setTimeout(resolve, 2000);
+          };
+        });
+      }
+      else {
+        confettiPromise = Promise.resolve();
+      }
 
       store.update((state) => ({
         ...state,
@@ -147,27 +161,46 @@
     </div>
   {:else if step == "bought"}
     <div class="fixed bottom-2/4 left-2/4 pointer-events-none">
-      <div use:confetti={{
-        particleCount: 100,
-        colors: ["#BB64D2", "#24A0F5", "#FED030", "#FC514B"],
-        stageHeight: 1900,
-        particleShape: 'circles',
-        force: 0.6,
-      }}></div>
+      {#await confettiPromise}
+        <!-- wait for confetti delay -->
+        {:then}
+          <div use:confetti={{
+            particleCount: 100,
+            colors: ["#BB64D2", "#24A0F5", "#FED030", "#FC514B"],
+            stageHeight: 1900,
+            particleShape: 'circles',
+            force: 0.6,
+          }}></div>
+      {/await}
     </div>
     <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
       Your purchase was made successfully - your NFT will be sent to your
       address shortly!
     </div>
-    <div class="flex justify-center">
-      {#if isDev === 'development'}
-        <!-- <img src="https://4ggk4-mqaaa-aaaae-qad6q-cai.raw.ic0.app/{boughtTokenIndex}" alt=""> -->
-        <!-- <img src="https://4bhmi-biaaa-aaaae-qad6a-cai.raw.ic0.app/537.svg" alt=""> -->
-        <img src="/src/assets/svelte.png" alt="">
-      {:else}
-        <img src="https://{collection.canisterId}.raw.ic0.app/{boughtTokenIndex}" alt="">
-      {/if}
-    </div>
+    {#if collection.previewEnabled}
+        <div class="flex justify-center">
+        {#if isDev === 'development'}
+          <iframe
+            class="border-0 mx-auto mt-5 overflow-hidden"
+            style="max-width: 80vh; height: 40vh;"
+            title=""
+            frameborder="0"
+            src="https://pk6rk-6aaaa-aaaae-qaazq-cai.raw.ic0.app/{boughtTokenIndex - 1500}"
+            on:load={resolveConfetti}
+            on:error={resolveConfetti}
+          ></iframe>
+          <!-- <img src="/src/assets/svelte.png" alt=""> -->
+        {:else}
+          <iframe
+            class="border-0 mx-auto mt-5 overflow-hidden"
+            style="max-width: 80vh; height: 40vh;"
+            title=""
+            frameborder="0"
+            src="https://{collection.canisterId}.raw.ic0.app/{boughtTokenIndex}"
+          ></iframe>
+        {/if}
+      </div>
+    {/if}
     <div class="flex gap-3 flex-col flex-1 justify-center items-center mt-6">
       <Button
         on:click={toggleBuyModal}
