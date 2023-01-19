@@ -196,7 +196,9 @@
             style="max-width: 80vh; height: 40vh;"
             title=""
             frameborder="0"
-            src="https://{collection.canisterId}.raw.ic0.app/{boughtTokenIndex}"
+            src="https://{collection.canisterId}.raw.ic0.app/{boughtTokenIndex}?type=thumbnail"
+            on:load={resolveConfetti}
+            on:error={resolveConfetti}
           ></iframe>
         {/if}
       </div>
