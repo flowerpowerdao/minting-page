@@ -2,6 +2,7 @@
 
 ## Setup
 
+- node `16.13.0` , npm `9.3.1`
 -   install dfx version `0.12.1` (`DFX_VERSION=0.12.1 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"`)
 -   install [Vessel](https://github.com/dfinity/vessel)
 -   install [Plug](https://plugwallet.ooo/)
