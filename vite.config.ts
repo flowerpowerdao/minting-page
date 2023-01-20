@@ -134,5 +134,6 @@ export default defineConfig({
       isDev ? "development" : "production"
     ),
     "process.env.DFX_NETWORK": JSON.stringify(isDev ? "local" : "ic"),
+    global: process.env.NODE_ENV === "development" ? "globalThis" : "global",
   },
 });
