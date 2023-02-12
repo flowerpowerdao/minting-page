@@ -27,7 +27,7 @@
   {#if $store.isBuying}
     <Loader class="h-14" />
   {:else}
-    BUY {count} NFT<br />FOR {(Number(price) / 100000000).toFixed(2)} ICP
+    BUY {count} NFT<br />FOR {(Number(price) / 100000000).toFixed(3)} ICP
   {/if}
 </Button>
 {#if openBuyModal}

@@ -34,7 +34,7 @@
   };
 
   onMount(async () => {
-    let timer = setInterval(fetchData, 1000);
+    let timer = setInterval(fetchData, 3000);
     await fetchData();
 
     return () => {
@@ -51,12 +51,12 @@
   <div class="flex flex-col grow">
     <img
       class="grow object-cover h-44 bg-gray-300 mb-12 rounded-xl max-w-6xl"
-      src={collection.banner}
+      src={"/banner.png"}
       alt="{collection.name} banner"
     />
     <img
       class="logo border-solid border-8 object-cover rounded border-[#f5f5f5] dark:border-black"
-      src={collection.logo}
+      src={"/logo.png"}
       alt="{collection.name} logo"
     />
   </div>

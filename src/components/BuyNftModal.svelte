@@ -79,8 +79,11 @@
       while (true) {
         let res;
         try {
-          res = await $store.extActor.retreive(payToAddress);
+          res = await $store.extActor.retrieve(payToAddress);
         } catch (e) {
+          // pause for 1 second
+          setTimeout(() => {}, 1000);
+          console.warn(e);
           continue; // if we can't reach the canister due to subnet or canister overloads, we just try again
         }
         // as soon as we receive an answer from the canister, the two following states are possible
@@ -90,12 +93,12 @@
         }
         if ("err" in res) {
           throw "Your purchase failed! If ICP was sent and the sale ran out, you will be refunded shortly!"; // this throw will be caught at the end of the method
-        };
+        }
       }
 
       // get just bought token
       let tokens = await $store.extActor.tokens(accountId);
-      if ('ok' in tokens) {
+      if ("ok" in tokens) {
         boughtTokenIndex = tokens.ok.at(-1);
       }
 
@@ -108,8 +111,7 @@
             setTimeout(resolve, 2000);
           };
         });
-      }
-      else {
+      } else {
         confettiPromise = Promise.resolve();
       }
 
@@ -134,8 +136,8 @@
     <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
       Are you sure you want to continue with this purchase of <b>{count}</b>
       NFT{count === 1n ? "" : "s"} for the total price of
-      <b>{BigInt(price) / 100000000n}</b> ICP? All transactions are final on confirmation
-      and can't be reversed.
+      <b>{(Number(price) / 100000000).toFixed(3)}</b> ICP? All transactions are final
+      on confirmation and can't be reversed.
     </div>
     <div class="flex gap-3 flex-col flex-1 justify-center items-center mt-6">
       <Button
@@ -163,14 +165,16 @@
     <div class="fixed bottom-2/4 left-2/4 pointer-events-none">
       {#await confettiPromise}
         <!-- wait for confetti delay -->
-        {:then}
-          <div use:confetti={{
+      {:then}
+        <div
+          use:confetti={{
             particleCount: 100,
             colors: ["#BB64D2", "#24A0F5", "#FED030", "#FC514B"],
             stageHeight: 1900,
-            particleShape: 'circles',
+            particleShape: "circles",
             force: 0.6,
-          }}></div>
+          }}
+        />
       {/await}
     </div>
     <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
@@ -178,28 +182,29 @@
       address shortly!
     </div>
     {#if collection.previewEnabled}
-        <div class="flex justify-center">
-        {#if isDev === 'development'}
+      <div class="flex justify-center">
+        {#if isDev === "development"}
           <iframe
             class="border-0 mx-auto mt-5 overflow-hidden"
             style="max-width: 80vh; height: 40vh;"
             title=""
             frameborder="0"
-            src="https://pk6rk-6aaaa-aaaae-qaazq-cai.raw.ic0.app/{boughtTokenIndex - 1500}"
+            src="https://pk6rk-6aaaa-aaaae-qaazq-cai.raw.ic0.app/{boughtTokenIndex -
+              1500}"
             on:load={resolveConfetti}
             on:error={resolveConfetti}
-          ></iframe>
+          />
           <!-- <img src="/src/assets/svelte.png" alt=""> -->
         {:else}
-          <iframe
+          <img
             class="border-0 mx-auto mt-5 overflow-hidden"
             style="max-width: 80vh; height: 40vh;"
             title=""
-            frameborder="0"
+            alt="nft"
             src="https://{collection.canisterId}.raw.ic0.app/{boughtTokenIndex}?type=thumbnail"
             on:load={resolveConfetti}
             on:error={resolveConfetti}
-          ></iframe>
+          />
         {/if}
       </div>
     {/if}
