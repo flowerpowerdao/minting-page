@@ -7,7 +7,7 @@
 -   install [Vessel](https://github.com/dfinity/vessel)
 -   install [Plug](https://plugwallet.ooo/)
 -   clone the repository and run `git submodule init` and `git submodule update`. this pulls the submodules the project depends on
--   `cd icpflower-nft-canister` and run `vessel install` to install the depenedencies
+-   `cd power-equalizer` and run `vessel install` to install the depenedencies
 -   run `npm install` from root
 -   create a `set-deploy-env.zsh` file in the root directory according to the following example and replace the `WALLET_ADDRESS` with your Plug wallet address
 
@@ -17,7 +17,7 @@ export WALLET_ADDRESS="8b61ff722d7e6321eb99bb607ab0cf323b3c64b43d6a13c245c8a4e19
 
 ## Development
 
-`npm run dev` will start local dev server, start dfx replica and deploy `ledger` and `icpflower-nft-canister`.
+`npm start` will start local dev server, start dfx replica and deploy `ledger` and `power-equalizer`.
 
 In Plug add a local network with following settings:
 
@@ -29,4 +29,4 @@ Ledger canister Id = ryjl3-tyaaa-aaaaa-aaaba-cai (check `.dfx/local/canister_ids
 
 Then switch to the local network
 
-You can change local NFT sale settings in `icpflower-nft-canister/src/Env/lib.mo`, make sure you're on the `local-depoloyment` branch in the git submodule.
+You can change local NFT sale settings in `power-equalizer/src/Env/lib.mo`

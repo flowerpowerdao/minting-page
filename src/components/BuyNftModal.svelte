@@ -73,13 +73,13 @@
       // this can potentially fail, will be caught at the end of the method
       await store.transfer(payToAddress, priceToPay);
 
-      // retreive
+      // retrieve
       progressText = "Completing purchase...";
 
       while (true) {
         let res;
         try {
-          res = await $store.extActor.retreive(payToAddress);
+          res = await $store.extActor.retrieve(payToAddress);
         } catch (e) {
           continue; // if we can't reach the canister due to subnet or canister overloads, we just try again
         }
