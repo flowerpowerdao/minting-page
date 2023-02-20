@@ -19,7 +19,6 @@
     }
 
     let startDate = new Date(Number(saleSettings.startTime / 1000000n));
-
     if (startDate.getTime() > Date.now()) {
       saleStatus = "waiting";
     } else if (saleSettings.remaining > 0) {
@@ -32,13 +31,14 @@
       addSuffix: true,
     });
   };
-
   onMount(async () => {
-    let timer = setInterval(fetchData, 1000);
+    clearInterval(window['fetchDataTimer']);
+
+    window['fetchDataTimer'] = setInterval(fetchData, 1000);
     await fetchData();
 
     return () => {
-      clearInterval(timer);
+      clearInterval(window['fetchDataTimer']);
     };
   });
 </script>
