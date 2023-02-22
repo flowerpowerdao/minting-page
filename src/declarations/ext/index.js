@@ -5,7 +5,7 @@ import { idlFactory } from "./staging.did.js";
 export { idlFactory } from "./staging.did.js";
 
 // CANISTER_ID is replaced by webpack based on node environment
-export const canisterId = process.env.STAGING_CANISTER_ID;
+export const canisterId = process.env.POWER_EQUALIZER_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });

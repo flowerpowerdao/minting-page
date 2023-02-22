@@ -19,7 +19,6 @@
     }
 
     let startDate = new Date(Number(saleSettings.startTime / 1000000n));
-
     if (startDate.getTime() > Date.now()) {
       saleStatus = "waiting";
     } else if (saleSettings.remaining > 0) {
@@ -32,13 +31,14 @@
       addSuffix: true,
     });
   };
-
   onMount(async () => {
-    let timer = setInterval(fetchData, 3000);
+    clearInterval(window['fetchDataTimer']);
+
+    window['fetchDataTimer'] = setInterval(fetchData, 3000);
     await fetchData();
 
     return () => {
-      clearInterval(timer);
+      clearInterval(window['fetchDataTimer']);
     };
   });
 </script>
@@ -113,7 +113,7 @@
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
           {#each saleSettings.bulkPricing as [count, price]}
-            <BuyNftButton {count} {price} saleStatus />
+            <BuyNftButton {count} {price} {saleStatus} />
           {/each}
         </div>
       </div>

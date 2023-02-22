@@ -54,6 +54,7 @@ export const idlFactory = ({ IDL }) => {
   const Listing = IDL.Record({
     'sellerFrontend' : IDL.Opt(IDL.Text),
     'locked' : IDL.Opt(Time),
+    'marketplaceAddress' : IDL.Opt(AccountIdentifier__1),
     'seller' : IDL.Principal,
     'buyerFrontend' : IDL.Opt(IDL.Text),
     'price' : IDL.Nat64,
@@ -446,6 +447,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'shuffleAssets' : IDL.Func([], [], []),
     'shuffleTokensForSale' : IDL.Func([], [], []),
+    'enableSale' : IDL.Func([], [IDL.Nat], []),
     'stats' : IDL.Func(
         [],
         [IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat64, IDL.Nat, IDL.Nat, IDL.Nat],
