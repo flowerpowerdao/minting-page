@@ -26,7 +26,7 @@ try {
 }
 
 let flowerNFTs = {
-  icpflower: "icpflower-nft-canister",
+  'power-equalizer': "power-equalizer",
 };
 
 for (let [nftName, dir] of Object.entries(flowerNFTs)) {
@@ -60,8 +60,6 @@ for (let [nftName, dir] of Object.entries(flowerNFTs)) {
   }
 }
 
-
-
 // List of all aliases for canisters
 // This will allow us to: import { canisterName } from "canisters/canisterName"
 const aliases = Object.entries(dfxJson.canisters || {}).reduce(
@@ -89,7 +87,7 @@ const aliases = Object.entries(dfxJson.canisters || {}).reduce(
 const canisterDefinitions = Object.entries(canisterIds).reduce(
   (acc, [key, val]) => ({
     ...acc,
-    [`process.env.${key.toUpperCase()}_CANISTER_ID`]: isDev
+    [`process.env.${key.toUpperCase().replace(/-/g, '_')}_CANISTER_ID`]: isDev
       ? JSON.stringify(val.local)
       : JSON.stringify(val.ic),
   }),
