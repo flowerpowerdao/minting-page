@@ -86,7 +86,6 @@ export interface Canister {
   >,
   'shuffleAssets' : ActorMethod<[], undefined>,
   'shuffleTokensForSale' : ActorMethod<[], undefined>,
-  'enableSale' : ActorMethod<[], bigint>,
   'stats' : ActorMethod<
     [],
     [bigint, bigint, bigint, bigint, bigint, bigint, bigint]
@@ -233,7 +232,6 @@ export interface ListRequest {
 export interface Listing {
   'sellerFrontend' : [] | [string],
   'locked' : [] | [Time],
-  'marketplaceAddress' : [] | [AccountIdentifier__1],
   'seller' : Principal,
   'buyerFrontend' : [] | [string],
   'price' : bigint,
