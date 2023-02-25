@@ -4,7 +4,7 @@ import type { HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
 import { AccountIdentifier, SubAccount } from "@dfinity/nns";
 import {
-  ext,
+  staging as ext,
   createActor as createExtActor,
   idlFactory as extIdlFactory,
 } from "./declarations/ext";

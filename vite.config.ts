@@ -26,7 +26,7 @@ try {
 }
 
 let flowerNFTs = {
-  'power-equalizer': "power-equalizer",
+  staging: "power-equalizer",
 };
 
 for (let [nftName, dir] of Object.entries(flowerNFTs)) {
@@ -87,7 +87,7 @@ const aliases = Object.entries(dfxJson.canisters || {}).reduce(
 const canisterDefinitions = Object.entries(canisterIds).reduce(
   (acc, [key, val]) => ({
     ...acc,
-    [`process.env.${key.toUpperCase().replace(/-/g, '_')}_CANISTER_ID`]: isDev
+    [`process.env.${key.toUpperCase().replace(/-/g, "_")}_CANISTER_ID`]: isDev
       ? JSON.stringify(val.local)
       : JSON.stringify(val.ic),
   }),
