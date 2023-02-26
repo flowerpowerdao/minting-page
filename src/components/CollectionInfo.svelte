@@ -9,6 +9,7 @@
   let saleSettings: SaleSettings;
   let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
   let startDateText = "-";
+  let slotEndDateText = "-";
   let error = "";
 
   let fetchData = async () => {
@@ -29,6 +30,12 @@
 
     startDateText = formatDistance(startDate, new Date(), {
       addSuffix: true,
+      includeSeconds: true,
+    });
+
+    slotEndDateText = formatDistance(startDate.getTime() + 1000*1000, new Date(), {
+      addSuffix: true,
+      includeSeconds: true,
     });
   };
   onMount(async () => {
@@ -109,6 +116,10 @@
         {#if saleStatus == "waiting"}
           <div class="text-xl font-semibold text-center mb-5">
             This pricing group opens {startDateText}!
+          </div>
+        {:else if saleSettings.startTime}
+          <div class="text-xl font-semibold text-center mb-5">
+            This pricing group closes {slotEndDateText}!
           </div>
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
