@@ -30,4 +30,6 @@ Ledger canister Id = ryjl3-tyaaa-aaaaa-aaaba-cai (check `.dfx/local/canister_ids
 Then switch to the local network
 
 You can change local NFT sale settings in `power-equalizer/src/Env/lib.mo`.
+
 To update the banner and the logo change `src/public/logo.png` and `src/public/banner.png`.
+To update the collection, change `src/collection.ts`.
