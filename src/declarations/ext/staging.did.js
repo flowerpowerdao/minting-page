@@ -272,6 +272,7 @@ export const idlFactory = ({ IDL }) => {
   const SaleSettings = IDL.Record({
     'startTime' : Time__1,
     'whitelist' : IDL.Bool,
+    'endTime' : Time__1,
     'totalToSell' : IDL.Nat,
     'sold' : IDL.Nat,
     'bulkPricing' : IDL.Vec(IDL.Tuple(IDL.Nat64, IDL.Nat64)),
@@ -280,13 +281,15 @@ export const idlFactory = ({ IDL }) => {
     'remaining' : IDL.Nat,
     'price' : IDL.Nat64,
   });
+  const Time__2 = IDL.Int;
+  const WhitelistSlot = IDL.Record({ 'end' : Time__2, 'start' : Time__2 });
   const Sale = IDL.Record({
     'expires' : Time__1,
+    'slot' : IDL.Opt(WhitelistSlot),
     'subaccount' : SubAccount__1,
     'tokens' : IDL.Vec(TokenIndex__2),
     'buyer' : AccountIdentifier__4,
     'price' : IDL.Nat64,
-    'whitelisted' : IDL.Bool,
   });
   const Balance__1 = IDL.Nat;
   const Result_2 = IDL.Variant({ 'ok' : Balance__1, 'err' : CommonError });

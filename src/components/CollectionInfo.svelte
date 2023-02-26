@@ -9,6 +9,7 @@
   let saleSettings: SaleSettings;
   let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
   let startDateText = "-";
+  let slotEndDateText = "-";
   let error = "";
 
   let fetchData = async () => {
@@ -29,7 +30,16 @@
 
     startDateText = formatDistance(startDate, new Date(), {
       addSuffix: true,
+      includeSeconds: true,
     });
+
+    if (saleSettings.endTime) {
+      let endDate = new Date(Number(saleSettings.endTime / 1000000n));
+      slotEndDateText = formatDistance(endDate.getTime(), new Date(), {
+        addSuffix: true,
+        includeSeconds: true,
+      });
+    }
   };
   onMount(async () => {
     clearInterval(window['fetchDataTimer']);
@@ -109,6 +119,10 @@
         {#if saleStatus == "waiting"}
           <div class="text-xl font-semibold text-center mb-5">
             This pricing group opens {startDateText}!
+          </div>
+        {:else if saleSettings.endTime}
+          <div class="text-xl font-semibold text-center mb-5">
+            This pricing group closes {slotEndDateText}!
           </div>
         {/if}
         <div class="flex flex-wrap justify-center gap-20">

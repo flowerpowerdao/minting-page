@@ -7,7 +7,7 @@
     "dev": "npm start",
     "generate": "cd power-equalizer && DFX_MOC_PATH=\"$(vessel bin)/moc\" dfx generate staging && cp -rf declarations/main/* ../src/declarations/ext/ && cd ..",
     "replica": "dfx stop && rm -rf .dfx power-equalizer/.dfx && dfx start --clean --background",
-    "deploy:power-equalizer": "cd power-equalizer && npm run deploy:staging",
+    "deploy:power-equalizer": "cd power-equalizer && npm run deploy:staging && npm run mint",
     "deploy:ledger": ". ./set-deploy-env.zsh && dfx deploy ledger --no-wallet --mode reinstall -y --argument '(record {minting_account = \"'$(dfx ledger account-id)'\"; initial_values = vec { record { \"'$WALLET_ADDRESS'\"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'",
     "deploy": "dfx canister create --all && npm run deploy:ledger && npm run deploy:power-equalizer",
     "vite": "vite --port 3000",
