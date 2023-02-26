@@ -1,3 +1,8 @@
+type WhitelistSlot = 
+ record {
+   end: Time__2;
+   start: Time__2;
+ };
 type User = 
  variant {
    address: AccountIdentifier;
@@ -45,6 +50,7 @@ type TokenIdentifier__3 = text;
 type TokenIdentifier__2 = text;
 type TokenIdentifier__1 = text;
 type TokenIdentifier = text;
+type Time__2 = int;
 type Time__1 = int;
 type Time = int;
 type SubAccount__3 = vec nat8;
@@ -100,9 +106,9 @@ type Sale =
    buyer: AccountIdentifier__4;
    expires: Time__1;
    price: nat64;
+   slot: opt WhitelistSlot;
    subaccount: SubAccount__1;
    tokens: vec TokenIndex__2;
-   whitelisted: bool;
  };
 type Result_9 = 
  variant {

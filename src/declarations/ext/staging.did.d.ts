@@ -292,11 +292,11 @@ export type Result_9 = { 'ok' : AccountIdentifier__6 } |
   { 'err' : CommonError__2 };
 export interface Sale {
   'expires' : Time__1,
+  'slot' : [] | [WhitelistSlot],
   'subaccount' : SubAccount__1,
   'tokens' : Uint32Array,
   'buyer' : AccountIdentifier__4,
   'price' : bigint,
-  'whitelisted' : boolean,
 }
 export interface SaleSettings {
   'startTime' : Time__1,
@@ -340,6 +340,7 @@ export type SubAccount__2 = Uint8Array;
 export type SubAccount__3 = Uint8Array;
 export type Time = bigint;
 export type Time__1 = bigint;
+export type Time__2 = bigint;
 export type TokenIdentifier = string;
 export type TokenIdentifier__1 = string;
 export type TokenIdentifier__2 = string;
@@ -379,4 +380,5 @@ export interface UpdateInformationRequest {
 }
 export type User = { 'principal' : Principal } |
   { 'address' : AccountIdentifier };
+export interface WhitelistSlot { 'end' : Time__2, 'start' : Time__2 }
 export interface _SERVICE extends Canister {}
