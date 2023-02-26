@@ -196,12 +196,12 @@
           />
           <!-- <img src="/src/assets/svelte.png" alt=""> -->
         {:else}
-          <img
+          <!-- svelte-ignore a11y-media-has-caption -->
+          <video
             class="border-0 mx-auto mt-5 overflow-hidden"
             style="max-width: 80vh; height: 40vh;"
             title=""
-            alt="nft"
-            src="https://{collection.canisterId}.raw.ic0.app/{boughtTokenIndex}?type=thumbnail"
+            src="https://{collection.canisterId}.raw.ic0.app/?asset=0"
             on:load={resolveConfetti}
             on:error={resolveConfetti}
           />

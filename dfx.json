@@ -7,6 +7,13 @@
             "source": ["dist/"],
             "type": "assets"
         },
+        "assets-staging": {
+            "frontend": {
+                "entrypoint": "dist/index.html"
+            },
+            "source": ["dist/"],
+            "type": "assets"
+        },
         "ledger": {
             "type": "custom",
             "wasm": "./src/declarations/ledger/ledger.wasm",

@@ -32,4 +32,6 @@ Then switch to the local network
 You can change local NFT sale settings in `power-equalizer/src/Env/lib.mo`.
 
 To update the banner and the logo change `src/public/logo.png` and `src/public/banner.png`.
-To update the collection, change `src/collection.ts`.
+To update the collection, change `src/collection.ts`. If you want to use the frontend with a specific locally deployed collection,
+modify the path for `localCanisterIds`.
+Make sure you use the correct tag to display the preview, if wanted.
