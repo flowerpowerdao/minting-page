@@ -33,10 +33,13 @@
       includeSeconds: true,
     });
 
-    slotEndDateText = formatDistance(startDate.getTime() + 1000*1000, new Date(), {
-      addSuffix: true,
-      includeSeconds: true,
-    });
+    if (saleSettings.endTime) {
+      let endDate = new Date(Number(saleSettings.endTime / 1000000n));
+      slotEndDateText = formatDistance(endDate.getTime(), new Date(), {
+        addSuffix: true,
+        includeSeconds: true,
+      });
+    }
   };
   onMount(async () => {
     clearInterval(window['fetchDataTimer']);
@@ -117,7 +120,7 @@
           <div class="text-xl font-semibold text-center mb-5">
             This pricing group opens {startDateText}!
           </div>
-        {:else if saleSettings.startTime}
+        {:else if saleSettings.endTime}
           <div class="text-xl font-semibold text-center mb-5">
             This pricing group closes {slotEndDateText}!
           </div>

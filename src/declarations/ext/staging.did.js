@@ -272,6 +272,7 @@ export const idlFactory = ({ IDL }) => {
   const SaleSettings = IDL.Record({
     'startTime' : Time__1,
     'whitelist' : IDL.Bool,
+    'endTime' : Time__1,
     'totalToSell' : IDL.Nat,
     'sold' : IDL.Nat,
     'bulkPricing' : IDL.Vec(IDL.Tuple(IDL.Nat64, IDL.Nat64)),

@@ -301,6 +301,7 @@ export interface Sale {
 export interface SaleSettings {
   'startTime' : Time__1,
   'whitelist' : boolean,
+  'endTime' : Time__1,
   'totalToSell' : bigint,
   'sold' : bigint,
   'bulkPricing' : Array<[bigint, bigint]>,
