@@ -20,7 +20,7 @@
     }
 
     let startDate = new Date(Number(saleSettings.startTime / 1000000n));
-    if (startDate.getTime() > Date.now()) {
+    if (startDate.getTime() > Date.now() && saleSettings.remaining > 0) {
       saleStatus = "waiting";
     } else if (saleSettings.remaining > 0) {
       saleStatus = "ongoing";
