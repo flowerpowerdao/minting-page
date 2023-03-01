@@ -20,6 +20,7 @@
   let boughtTokenIndex: number;
   let resolveConfetti;
   let confettiPromise: Promise<void>;
+  let reserveTimeout = 1000 * 60; // 1 minute
 
   $: console.log(step);
 
@@ -49,8 +50,10 @@
 
     try {
       // reserve
+      let startTime = Date.now();
       let accountId = $store.accountId;
       console.log("reserving for account", accountId);
+
       let res = await $store.extActor.reserve(
         price,
         count,
@@ -67,6 +70,11 @@
       console.log(
         `pay ${(Number(priceToPay) / 100000000).toFixed(2)} to ${payToAddress}`
       );
+
+      // stop early before we send the payment
+      if (Date.now() - startTime > reserveTimeout) {
+        throw new Error('Reservation time has expired. Please try again.');
+      }
 
       // transfer ICP
       progressText = "Transferring ICP...";
