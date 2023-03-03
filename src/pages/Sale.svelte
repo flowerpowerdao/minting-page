@@ -1,21 +1,9 @@
 <script lang="ts">
-    import CollectionInfo from "../components/CollectionInfo.svelte";
+  import CollectionInfo from "../components/CollectionInfo.svelte";
 </script>
 
-<!-- <BuyNftModal
-    bind:open={buyNftModalOpen}
-    count={buying.count}
-    totalPrice={buying.totalPrice}
-    on:success={fetchData}
-/> -->
-<!-- <LoginModal bind:open={loginModalOpen} /> -->
-
-<!-- mobile -->
-<div class="lg:hidden py-10">
-    <CollectionInfo />
-</div>
-
-<!-- desktop -->
-<div class="hidden lg:flex items-center pt-40 pb-8 justify-between mx-[11%] flex-col">
-    <CollectionInfo />
+<div
+  class="py-10 lg:py-0 lg:flex lg:items-center lg:pt-40 lg:pb-8 lg:justify-between lg:mx-[11%] lg:flex-col"
+>
+  <CollectionInfo />
 </div>
