@@ -41,14 +41,17 @@
       });
     }
   };
-  onMount(async () => {
-    clearInterval(window['fetchDataTimer']);
 
-    window['fetchDataTimer'] = setInterval(fetchData, 3000);
+  let fetchDataTimer;
+
+  onMount(async () => {
+    clearInterval(fetchDataTimer);
+    fetchDataTimer = setInterval(fetchData, 3000);
+
     await fetchData();
 
     return () => {
-      clearInterval(window['fetchDataTimer']);
+      clearInterval(fetchDataTimer);
     };
   });
 </script>
