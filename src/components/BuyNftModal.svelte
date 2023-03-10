@@ -26,12 +26,13 @@
 
   //   the method signature of `reserver` asks for a subaccount.
   // that parameter isn't used though so we just pass random bytes
-  const _getRandomBytes = () => {
+  const _getRandomBytes = (): Uint8Array => {
     var bs = [];
     for (var i = 0; i < 32; i++) {
       bs.push(Math.floor(Math.random() * 256));
     }
-    return bs;
+    // turn array of numbers into uint8 array
+    return new Uint8Array(bs);
   };
 
   function reset() {
@@ -73,7 +74,7 @@
 
       // stop early before we send the payment
       if (Date.now() - startTime > reserveTimeout) {
-        throw new Error('Reservation time has expired. Please try again.');
+        throw new Error("Reservation time has expired. Please try again.");
       }
 
       // transfer ICP
@@ -96,7 +97,7 @@
         }
         // as soon as we receive an answer from the canister, the two following states are possible
         if ("ok" in res) {
-          console.log(`bought nft ${fromOk(res)}`);
+          console.log(`bought nft`);
           break;
         }
         if ("err" in res) {

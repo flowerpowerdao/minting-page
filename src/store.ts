@@ -1,8 +1,9 @@
 import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
-import type { HttpAgent, Identity } from "@dfinity/agent";
+import { Actor, HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
-import { AccountIdentifier, SubAccount } from "@dfinity/nns";
+import { AccountIdentifier } from "@dfinity/nns";
+import { InterfaceFactory } from "@dfinity/candid/lib/cjs/idl";
 import {
   staging as ext,
   createActor as createExtActor,
@@ -26,7 +27,7 @@ export const HOST =
     : "https://ic0.app";
 
 type State = {
-  isAuthed: "plug" | "stoic" | null;
+  isAuthed: "plug" | "stoic" | "bitfinity" | null;
   extActor: typeof ext;
   ledgerActor: typeof ledger;
   principal: Principal;
@@ -62,7 +63,38 @@ export const createStore = ({
 }) => {
   const { subscribe, update } = writable<State>(defaultState);
 
-  const stoicConnect = () => {
+  const checkConnections = async () => {
+    await checkStoicConnection();
+    await checkPlugConnection();
+    await checkBitfinityConnection();
+  };
+
+  const checkStoicConnection = async () => {
+    StoicIdentity.load().then(async (identity) => {
+      if (identity !== false) {
+        //ID is a already connected wallet!
+        await stoicConnect();
+      }
+    });
+  };
+
+  const checkPlugConnection = async () => {
+    const connected = await window.ic?.plug?.isConnected();
+    if (connected) {
+      console.log("plug connection detected");
+      store.plugConnect();
+    }
+  };
+
+  const checkBitfinityConnection = async () => {
+    const connected = await window.ic?.bitfinityWallet?.isConnected();
+    if (connected) {
+      console.log("bitfinity connection detected");
+      store.bitfinityConnect();
+    }
+  };
+
+  const stoicConnect = async () => {
     StoicIdentity.load().then(async (identity) => {
       if (identity !== false) {
         // ID is a already connected wallet!
@@ -123,10 +155,6 @@ export const createStore = ({
     const plugConnected = await window.ic?.plug?.isConnected();
     if (!plugConnected) {
       try {
-        console.log({
-          whitelist,
-          host,
-        });
         await window.ic?.plug.requestConnect({
           whitelist,
           host,
@@ -195,9 +223,66 @@ export const createStore = ({
     console.log("plug is authed");
   };
 
+  const bitfinityConnect = async () => {
+    // check if bitfinity is installed in the browser
+    if (window.ic?.bitfinityWallet === undefined) {
+      window.open("https://wallet.infinityswap.one/", "_blank");
+      return;
+    }
+
+    // check if bitfinity is connected
+    const bitfinityConnected = await window.ic?.bitfinityWallet?.isConnected();
+    if (!bitfinityConnected) {
+      try {
+        await window.ic?.bitfinityWallet.requestConnect({ whitelist });
+        console.log("bitfinity connected");
+      } catch (e) {
+        console.warn(e);
+        return;
+      }
+    }
+
+    await initBitfinity();
+  };
+
+  const initBitfinity = async () => {
+    const extActor = (await window.ic.bitfinityWallet.createActor({
+      canisterId: collection.canisterId,
+      interfaceFactory: extIdlFactory,
+      host: HOST,
+    })) as typeof ext;
+
+    const ledgerActor = (await window.ic.bitfinityWallet.createActor({
+      canisterId: ledgerCanisterId,
+      interfaceFactory: ledgerIdlFactory,
+      host: HOST,
+    })) as typeof ledger;
+
+    if (!extActor || !ledgerActor) {
+      console.warn("couldn't create actors");
+      return;
+    }
+
+    const principal = await window.ic.bitfinityWallet.getPrincipal();
+    const accountId = await window.ic.bitfinityWallet.getAccountID();
+
+    update((state) => ({
+      ...state,
+      extActor,
+      ledgerActor,
+      principal,
+      accountId,
+      isAuthed: "bitfinity",
+    }));
+
+    await updateBalance();
+
+    console.log("bitfinity is authed");
+  };
+
   async function updateBalance() {
     const store = get({ subscribe });
-    let balance;
+    let balance: number;
 
     if (store.isAuthed === "plug") {
       let result = await window.ic.plug.requestBalance();
@@ -208,6 +293,17 @@ export const createStore = ({
         account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
       });
       balance = Number(res.e8s / 100000000n);
+    } else if (store.isAuthed === "bitfinity") {
+      if (process.env.DFX_NETWORK !== "ic") {
+        let res = await store.ledgerActor.account_balance({
+          account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
+        });
+        balance = Number(res.e8s / 100000000n);
+      } else {
+        let result = await window.ic.bitfinityWallet.getUserAssets();
+        let ICP = result.find((asset) => asset.symbol === "ICP");
+        balance = Number(BigInt(ICP.balance) / 100000000n);
+      }
     }
     console.log("balance", balance);
     update((prevState) => ({ ...prevState, balance }));
@@ -236,18 +332,32 @@ export const createStore = ({
         created_at_time: [],
       });
       console.log("sent", res);
+    } else if (store.isAuthed === "bitfinity") {
+      let res = await store.ledgerActor.transfer({
+        from_subaccount: [],
+        to: AccountIdentifier.fromHex(toAddress).toNumbers(),
+        amount: { e8s: amount },
+        fee: { e8s: 10000n },
+        memo: 0n,
+        created_at_time: [],
+      });
+      console.log("sent", res);
     }
     await updateBalance();
     console.log("updated balance");
   }
 
   const disconnect = async () => {
+    const store = get({ subscribe });
+    if (store.isAuthed === "stoic") {
+      StoicIdentity.disconnect();
+    } else if (store.isAuthed === "plug") {
+      await window.ic.plug.disconnect();
+    } else if (store.isAuthed === "bitfinity") {
+      await window.ic.bitfinityWallet.disconnect();
+    }
+
     console.log("disconnected");
-    StoicIdentity.disconnect();
-    window.ic?.plug?.disconnect();
-    // wait for 500ms to ensure that the disconnection is complete
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log("plug status: ", await window.ic?.plug?.isConnected());
 
     update((prevState) => {
       return {
@@ -261,14 +371,17 @@ export const createStore = ({
     update,
     plugConnect,
     stoicConnect,
+    bitfinityConnect,
     disconnect,
     transfer,
+    checkConnections,
   };
 };
 
 export const store = createStore({
   whitelist: [
     collection.canisterId,
+    ledgerCanisterId,
     // 'ryjl3-tyaaa-aaaaa-aaaba-cai',
   ],
   host: HOST,
@@ -277,6 +390,35 @@ export const store = createStore({
 declare global {
   interface Window {
     ic: {
+      bitfinityWallet: {
+        requestConnect: (options?: {
+          whitelist?: string[];
+          timeout?: number;
+        }) => Promise<{ derKey: Buffer; rawKey: Buffer }>;
+        isConnected: () => Promise<boolean>;
+        createActor: (options: {
+          canisterId: string;
+          interfaceFactory: InterfaceFactory;
+          host: string;
+        }) => Promise<Actor>;
+        getPrincipal: () => Promise<Principal>;
+        disconnect: () => Promise<boolean>;
+        getAccountID: () => Promise<string>;
+        getUserAssets: () => Promise<
+          {
+            id: string;
+            name: string;
+            fee: string;
+            symbol: string;
+            balance: string;
+            decimals: number;
+            hide: boolean;
+            isTestToken: boolean;
+            logo: string;
+            standard: string;
+          }[]
+        >;
+      };
       plug: {
         agent: HttpAgent;
         sessionManager: {
@@ -290,7 +432,7 @@ declare global {
           whitelist?: string[];
           host?: string;
         }) => Promise<any>;
-        createActor: (options: {}) => Promise<typeof ledger | typeof ext>;
+        createActor: (options: {}) => Promise<Actor>;
         isConnected: () => Promise<boolean>;
         disconnect: () => Promise<boolean>;
         createAgent: (args?: {
@@ -323,7 +465,3 @@ declare global {
     };
   }
 }
-
-// window.store = store;
-// window.get = get;
-// window.StoicIdentity = StoicIdentity;
