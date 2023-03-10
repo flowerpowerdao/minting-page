@@ -82,7 +82,7 @@ export const createStore = ({
     const connected = await window.ic?.plug?.isConnected();
     if (connected) {
       console.log("plug connection detected");
-      store.plugConnect();
+      await plugConnect();
     }
   };
 
@@ -90,7 +90,7 @@ export const createStore = ({
     const connected = await window.ic?.bitfinityWallet?.isConnected();
     if (connected) {
       console.log("bitfinity connection detected");
-      store.bitfinityConnect();
+      await bitfinityConnect();
     }
   };
 
