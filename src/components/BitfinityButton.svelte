@@ -1,15 +1,15 @@
-<script>
+<script lang="ts">
   import { store } from "../store";
 
-  import Button from "./Button.svelte";
   import spinner from "../assets/loading.gif";
+  import Button from "./Button.svelte";
 
   export let loading;
   export let toggleModal;
 
   async function connect() {
-    loading = "stoic";
-    await store.stoicConnect();
+    loading = "bitfinity";
+    await store.bitfinityConnect();
     loading = "";
     toggleModal();
   }
@@ -20,9 +20,9 @@
   disabled={loading}
   style={"lg:h-16 2xl:h-20 lg:rounded-[55px]"}
 >
-  {#if loading === "stoic"}
-    <img class="h-6 block h-" src={spinner} alt="loading animation" />
+  {#if loading === "bitfinity"}
+    <img class="h-6 block" src={spinner} alt="loading animation" />
   {:else}
-    stoic
+    bitfinity
   {/if}
 </Button>
