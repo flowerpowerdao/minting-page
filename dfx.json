@@ -1,36 +1,31 @@
 {
-    "canisters": {
-        "assets": {
-            "frontend": {
-                "entrypoint": "dist/index.html"
-            },
-            "source": ["dist/"],
-            "type": "assets"
-        },
-        "assets-staging": {
-            "frontend": {
-                "entrypoint": "dist/index.html"
-            },
-            "source": ["dist/"],
-            "type": "assets"
-        },
-        "ledger": {
-            "type": "custom",
-            "wasm": "./src/declarations/ledger/ledger.wasm",
-            "candid": "./src/declarations/ledger/ledger.private.did",
-            "build": "",
-            "remote": {
-                "candid": "./src/declarations/ledger/ledger.public.did",
-                "id": {
-                    "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-                }
-            }
-        }
+  "version": 1,
+  "canisters": {
+    "minting_frontend": {
+      "frontend": {
+        "entrypoint": "dist/index.html"
+      },
+      "source": ["dist/"],
+      "type": "assets"
     },
-    "version": 1,
-    "defaults": {
-        "replica": {
-            "subnet_type": "system"
+    "assets-staging": {
+      "frontend": {
+        "entrypoint": "dist/index.html"
+      },
+      "source": ["dist/"],
+      "type": "assets"
+    },
+    "ledger": {
+      "type": "custom",
+      "wasm": "./src/declarations/ledger/ledger.wasm",
+      "candid": "./src/declarations/ledger/ledger.private.did",
+      "build": "",
+      "remote": {
+        "candid": "./src/declarations/ledger/ledger.public.did",
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
         }
+      }
     }
+  }
 }

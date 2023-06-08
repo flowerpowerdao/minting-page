@@ -21,10 +21,7 @@ import {
 // we just reference them
 import { collection } from "./collection";
 
-export const HOST =
-  process.env.DFX_NETWORK !== "ic"
-    ? "http://localhost:4943"
-    : "https://ic0.app";
+export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://icp0.io";
 
 type State = {
   isAuthed: "plug" | "stoic" | "bitfinity" | null;
@@ -190,7 +187,7 @@ export const createStore = ({
 
     // Fetch root key for certificate validation during development
     if (process.env.DFX_NETWORK !== "ic") {
-      window.ic.plug.agent.fetchRootKey().catch((err) => {
+      await window.ic.plug.agent.fetchRootKey().catch((err) => {
         console.warn(
           "Unable to fetch root key. Check to ensure that your local replica is running"
         );

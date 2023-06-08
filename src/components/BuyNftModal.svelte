@@ -26,13 +26,13 @@
 
   //   the method signature of `reserver` asks for a subaccount.
   // that parameter isn't used though so we just pass random bytes
-  const _getRandomBytes = (): Uint8Array => {
+  const _getRandomBytes = (): number[] => {
     var bs = [];
     for (var i = 0; i < 32; i++) {
       bs.push(Math.floor(Math.random() * 256));
     }
     // turn array of numbers into uint8 array
-    return new Uint8Array(bs);
+    return bs;
   };
 
   function reset() {
@@ -101,6 +101,7 @@
           break;
         }
         if ("err" in res) {
+          console.error(res);
           throw "Your purchase failed! If ICP was sent and the sale ran out, you will be refunded shortly!"; // this throw will be caught at the end of the method
         }
       }

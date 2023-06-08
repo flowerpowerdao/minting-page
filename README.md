@@ -3,11 +3,11 @@
 ## Setup
 
 - node `16.13.0` , npm `9.3.1`
-- install dfx version `0.12.1` (`DFX_VERSION=0.12.1 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"`)
+- install dfx (`sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"`)
 - install [Vessel](https://github.com/dfinity/vessel)
 - install [Plug](https://plugwallet.ooo/)
 - clone the repository and run `git submodule init` and `git submodule update`. this pulls the submodules the project depends on
-- `cd power-equalizer` and run `vessel install` to install the depenedencies
+- `cd power-equalizer` and run `vessel install && npm install` to install the depenedencies
 - run `npm install` from root
 - create a `set-deploy-env.zsh` file in the root directory according to the following example and replace the `WALLET_ADDRESS` with your Plug wallet address
 

@@ -4,13 +4,12 @@
   "type": "module",
   "scripts": {
     "start": "npm run replica && npm run create-canisters && npm run deploy && npm run vite",
-    "dev": "npm start",
-    "create-canisters": "cd power-equalizer && dfx canister create staging && cd .. && dfx canister create ledger",
-    "generate": "cd power-equalizer && DFX_MOC_PATH=\"$(vessel bin)/moc\" dfx generate staging && cp -rf declarations/main/* ../src/declarations/ext/ && cd ..",
     "replica": "dfx stop && rm -rf .dfx power-equalizer/.dfx && dfx start --clean --background",
-    "deploy:power-equalizer": "cd power-equalizer && npm run deploy:staging && npm run mint",
+    "create-canisters": "cd power-equalizer && npm run create-canisters",
+    "generate": "cd power-equalizer && DFX_MOC_PATH=\"$(vessel bin)/moc\" dfx generate staging && cp -rf declarations/main/* ../src/declarations/ext/ && cd ..",
+    "deploy": "npm run deploy:power-equalizer",
+    "deploy:power-equalizer": ". ./set-deploy-env.zsh && cd power-equalizer && npm run deploy:ledger && npm run deploy local -- --mode reinstall",
     "deploy:ledger": ". ./set-deploy-env.zsh && dfx deploy ledger --no-wallet --mode reinstall -y --argument '(record {minting_account = \"'$(dfx ledger account-id)'\"; initial_values = vec { record { \"'$WALLET_ADDRESS'\"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'",
-    "deploy": "npm run deploy:power-equalizer && npm run deploy:ledger",
     "vite": "vite --port 3000",
     "build": "vite build",
     "serve": "vite preview",
@@ -40,6 +39,6 @@
     "tailwindcss": "^3.2.4",
     "tslib": "^2.4.1",
     "typescript": "^4.9.4",
-    "vite": "^4.0.4"
+    "vite": "^4.3.9"
   }
 }

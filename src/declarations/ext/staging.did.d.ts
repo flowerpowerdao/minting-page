@@ -336,7 +336,7 @@ export interface StatusResponse {
   'heap_memory_size' : [] | [bigint],
 }
 export type SubAccount = Uint8Array;
-export type SubAccount__1 = Uint8Array;
+export type SubAccount__1 = Uint8Array | number[];
 export type SubAccount__2 = Uint8Array;
 export type SubAccount__3 = Uint8Array;
 export type Time = bigint;
