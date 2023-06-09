@@ -60,12 +60,12 @@
   <div class="flex flex-col grow">
     <img
       class="grow object-cover h-44 bg-gray-300 mb-12 rounded-xl max-w-6xl"
-      src={"/banner.png"}
+      src={"/banner.jpg"}
       alt="{collection.name} banner"
     />
     <img
       class="logo border-solid border-8 object-cover rounded border-[#f5f5f5] dark:border-black"
-      src={"/logo.png"}
+      src={"/logo.jpg"}
       alt="{collection.name} logo"
     />
   </div>
