@@ -1,7 +1,7 @@
 {
   "version": 1,
   "canisters": {
-    "minting_frontend": {
+    "assets": {
       "frontend": {
         "entrypoint": "dist/index.html"
       },
