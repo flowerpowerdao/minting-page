@@ -1,10 +1,12 @@
 <script lang="ts">
-  import Button from "./Button.svelte";
-  import Loader from "./Loader.svelte";
+  import Button from "fpdao-ui/components/Button.svelte";
+  import Loader from "fpdao-ui/components/Loader.svelte";
+  import LoginModal from "fpdao-ui/components/LoginModal.svelte";
+  import { AuthStore } from 'fpdao-ui/auth-store';
   import { store } from "../store";
-  import LoginModal from "./LoginModal.svelte";
   import BuyNftModal from "./BuyNftModal.svelte";
 
+  export let authStore: AuthStore;
   export let count, price, saleStatus;
 
   let openLoginModal = false;
@@ -34,5 +36,5 @@
   <BuyNftModal {toggleBuyModal} {count} {price} />
 {/if}
 {#if openLoginModal}
-  <LoginModal toggleModal={toggleLoginModal} />
+  <LoginModal {authStore} toggleModal={toggleLoginModal} />
 {/if}

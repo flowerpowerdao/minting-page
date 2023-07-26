@@ -1,10 +1,13 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { AuthStore } from 'fpdao-ui/auth-store';
+  import formatDistance from "date-fns/formatDistance";
   import { collection } from "../collection";
   import type { SaleSettings } from "../declarations/ext/staging.did";
   import { store } from "../store";
-  import formatDistance from "date-fns/formatDistance";
-  import { onMount } from "svelte";
   import BuyNftButton from "./BuyNftButton.svelte";
+
+  export let authStore: AuthStore;
 
   let saleSettings: SaleSettings;
   let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
@@ -42,9 +45,9 @@
     }
   };
 
-  onMount(async () => {
+  onMount(() => {
     let timer = setInterval(fetchData, 3000);
-    await fetchData();
+    fetchData();
 
     return () => {
       clearInterval(timer);
@@ -126,7 +129,7 @@
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
           {#each saleSettings.bulkPricing as [count, price]}
-            <BuyNftButton {count} {price} {saleStatus} />
+            <BuyNftButton {authStore} {count} {price} {saleStatus} />
           {/each}
         </div>
       </div>

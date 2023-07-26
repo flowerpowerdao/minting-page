@@ -1,10 +1,10 @@
 <script lang="ts">
   import { confetti } from "@neoconfetti/svelte";
-  import Button from "./Button.svelte";
-  import Modal from "./Modal.svelte";
+  import Button from "fpdao-ui/components/Button.svelte";
+  import Modal from "fpdao-ui/components/Modal.svelte";
+  import Loader from "fpdao-ui/components/Loader.svelte";
   import { store } from "../store";
   import spinner from "../assets/loading.gif";
-  import Loader from "./Loader.svelte";
   import { fromErr, fromOk, isErr } from "../utils";
   import { collection } from "../collection";
 
