@@ -1,6 +1,6 @@
 <script lang="ts">
   import { AuthStore } from 'fpdao-ui/auth-store';
-  import CollectionInfo from "../components/CollectionInfo.svelte";
+  import CollectionInfo from "./CollectionInfo.svelte";
 
   export let authStore: AuthStore;
 </script>

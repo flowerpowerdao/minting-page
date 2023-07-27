@@ -3,8 +3,8 @@
   import Button from "fpdao-ui/components/Button.svelte";
   import Modal from "fpdao-ui/components/Modal.svelte";
   import Loader from "fpdao-ui/components/Loader.svelte";
+  import spinner from "fpdao-ui/images/loading.gif";
   import { store } from "../store";
-  import spinner from "../assets/loading.gif";
   import { fromErr, fromOk, isErr } from "../utils";
   import { collection } from "../collection";
 

@@ -24,7 +24,7 @@
     "@dfinity/utils": "^0.0.18",
     "@neoconfetti/svelte": "^1.0.0",
     "date-fns": "^2.30.0",
-    "fpdao-ui": "^1.0.2",
+    "fpdao-ui": "^1.0.3",
     "ic-stoic-identity": "^2.0.0"
   },
   "devDependencies": {
