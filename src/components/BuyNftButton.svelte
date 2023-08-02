@@ -2,11 +2,9 @@
   import Button from "fpdao-ui/components/Button.svelte";
   import Loader from "fpdao-ui/components/Loader.svelte";
   import LoginModal from "fpdao-ui/components/LoginModal.svelte";
-  import { AuthStore } from 'fpdao-ui/auth-store';
-  import { store } from "../store";
+  import { store, authStore } from "../store";
   import BuyNftModal from "./BuyNftModal.svelte";
 
-  export let authStore: AuthStore;
   export let count, price, saleStatus;
 
   let openLoginModal = false;
@@ -24,7 +22,7 @@
 <Button
   style={"max-w-[150px] lg:h-16 2xl:h-20"}
   disabled={saleStatus === "waiting"}
-  on:click={$store.isAuthed ? toggleBuyModal : toggleLoginModal}
+  on:click={$authStore.isAuthed ? toggleBuyModal : toggleLoginModal}
 >
   {#if $store.isBuying}
     <Loader class="h-14" />

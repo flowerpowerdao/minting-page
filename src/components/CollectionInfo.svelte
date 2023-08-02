@@ -1,13 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { AuthStore } from 'fpdao-ui/auth-store';
   import formatDistance from "date-fns/formatDistance";
   import { collection } from "../collection";
   import type { SaleSettings } from "../declarations/ext/staging.did";
-  import { store } from "../store";
+  import { store, authStore } from "../store";
   import BuyNftButton from "./BuyNftButton.svelte";
-
-  export let authStore: AuthStore;
 
   let saleSettings: SaleSettings;
   let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
@@ -17,7 +14,7 @@
 
   let fetchData = async () => {
     try {
-      saleSettings = await $store.extActor.salesSettings($store.accountId);
+      saleSettings = await $store.extActor.salesSettings($authStore.accountId);
     } catch (err) {
       error = "Sale didn't start yet.";
     }
@@ -110,9 +107,7 @@
     >
       <div
         class="h-8 bg-gray-800 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full dark:bg-gray-200"
-        style="width: {(Number(saleSettings.remaining) /
-          Number(saleSettings.totalToSell)) *
-          100}%"
+        style="width: {(Number(saleSettings.remaining) / Number(saleSettings.totalToSell)) * 100}%"
       />
     </div>
 
@@ -129,7 +124,7 @@
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
           {#each saleSettings.bulkPricing as [count, price]}
-            <BuyNftButton {authStore} {count} {price} {saleStatus} />
+            <BuyNftButton {count} {price} {saleStatus} />
           {/each}
         </div>
       </div>

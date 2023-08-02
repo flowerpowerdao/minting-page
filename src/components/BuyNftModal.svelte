@@ -4,7 +4,7 @@
   import Modal from "fpdao-ui/components/Modal.svelte";
   import Loader from "fpdao-ui/components/Loader.svelte";
   import spinner from "fpdao-ui/images/loading.gif";
-  import { store } from "../store";
+  import { store, authStore } from "../store";
   import { fromErr, fromOk, isErr } from "../utils";
   import { collection } from "../collection";
 
@@ -52,7 +52,7 @@
     try {
       // reserve
       let startTime = Date.now();
-      let accountId = $store.accountId;
+      let accountId = $authStore.accountId;
       console.log("reserving for account", accountId);
 
       let res = await $store.extActor.reserve(
@@ -80,7 +80,7 @@
       // transfer ICP
       progressText = "Transferring ICP...";
       // this can potentially fail, will be caught at the end of the method
-      await store.transfer(payToAddress, priceToPay);
+      await authStore.transfer(payToAddress, priceToPay);
 
       // retrieve
       progressText = "Completing purchase...";
