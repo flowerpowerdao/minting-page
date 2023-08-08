@@ -123,9 +123,7 @@
           </div>
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
-          {#each saleSettings.bulkPricing as [count, price]}
-            <BuyNftButton {count} {price} {saleStatus} />
-          {/each}
+          <BuyNftButton price={saleSettings.price} {saleStatus} />
         </div>
       </div>
     {:else if saleStatus == "ended"}

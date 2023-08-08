@@ -9,7 +9,6 @@
   import { collection } from "../collection";
 
   export let toggleBuyModal;
-  export let count: bigint;
   export let price: bigint;
 
   let isDev = process.env.NODE_ENV;
@@ -23,17 +22,6 @@
   let reserveTimeout = 1000 * 60; // 1 minute
 
   $: console.log(step);
-
-  //   the method signature of `reserver` asks for a subaccount.
-  // that parameter isn't used though so we just pass random bytes
-  const _getRandomBytes = (): number[] => {
-    var bs = [];
-    for (var i = 0; i < 32; i++) {
-      bs.push(Math.floor(Math.random() * 256));
-    }
-    // turn array of numbers into uint8 array
-    return bs;
-  };
 
   function reset() {
     step = "confirm";
@@ -55,12 +43,7 @@
       let accountId = $authStore.accountId;
       console.log("reserving for account", accountId);
 
-      let res = await $store.extActor.reserve(
-        price,
-        count,
-        accountId,
-        _getRandomBytes()
-      );
+      let res = await $store.extActor.reserve(accountId);
 
       if (isErr(res)) {
         throw fromErr(res); // will be caught at the end of the method
@@ -144,8 +127,8 @@
 <Modal title="Buy NFT" toggleModal={toggleBuyModal}>
   {#if step == "confirm"}
     <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
-      Are you sure you want to continue with this purchase of <b>{count}</b>
-      NFT{count === 1n ? "" : "s"} for the total price of
+      Are you sure you want to continue with this purchase of <b>1</b>
+      NFT for the total price of
       <b>{(Number(price) / 100000000).toFixed(3)}</b> ICP? All transactions are final
       on confirmation and can't be reversed.
     </div>

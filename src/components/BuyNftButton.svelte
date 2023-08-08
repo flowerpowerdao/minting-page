@@ -5,7 +5,7 @@
   import { store, authStore } from "../store";
   import BuyNftModal from "./BuyNftModal.svelte";
 
-  export let count, price, saleStatus;
+  export let price, saleStatus;
 
   let openLoginModal = false;
   let openBuyModal = false;
@@ -27,11 +27,11 @@
   {#if $store.isBuying}
     <Loader class="h-14" />
   {:else}
-    BUY {count} NFT<br />FOR {(Number(price) / 100000000).toFixed(3)} ICP
+    BUY 1 NFT<br />FOR {(Number(price) / 100000000).toFixed(3)} ICP
   {/if}
 </Button>
 {#if openBuyModal}
-  <BuyNftModal {toggleBuyModal} {count} {price} />
+  <BuyNftModal {toggleBuyModal} {price} />
 {/if}
 {#if openLoginModal}
   <LoginModal {authStore} toggleModal={toggleLoginModal} />
