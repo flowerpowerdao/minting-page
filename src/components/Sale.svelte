@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CollectionInfo from "../components/CollectionInfo.svelte";
+  import CollectionInfo from "./CollectionInfo.svelte";
 </script>
 
 <div

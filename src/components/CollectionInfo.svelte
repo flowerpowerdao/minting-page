@@ -1,9 +1,9 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import formatDistance from "date-fns/formatDistance";
   import { collection } from "../collection";
   import type { SaleSettings } from "../declarations/ext/staging.did";
-  import { store } from "../store";
-  import formatDistance from "date-fns/formatDistance";
-  import { onMount } from "svelte";
+  import { store, authStore } from "../store";
   import BuyNftButton from "./BuyNftButton.svelte";
 
   let saleSettings: SaleSettings;
@@ -14,7 +14,7 @@
 
   let fetchData = async () => {
     try {
-      saleSettings = await $store.extActor.salesSettings($store.accountId);
+      saleSettings = await $store.extActor.salesSettings($authStore.accountId);
     } catch (err) {
       error = "Sale didn't start yet.";
     }
@@ -42,9 +42,9 @@
     }
   };
 
-  onMount(async () => {
+  onMount(() => {
     let timer = setInterval(fetchData, 3000);
-    await fetchData();
+    fetchData();
 
     return () => {
       clearInterval(timer);
@@ -107,9 +107,7 @@
     >
       <div
         class="h-8 bg-gray-800 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full dark:bg-gray-200"
-        style="width: {(Number(saleSettings.remaining) /
-          Number(saleSettings.totalToSell)) *
-          100}%"
+        style="width: {(Number(saleSettings.remaining) / Number(saleSettings.totalToSell)) * 100}%"
       />
     </div>
 
@@ -125,9 +123,7 @@
           </div>
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
-          {#each saleSettings.bulkPricing as [count, price]}
-            <BuyNftButton {count} {price} {saleStatus} />
-          {/each}
+          <BuyNftButton price={saleSettings.price} {saleStatus} />
         </div>
       </div>
     {:else if saleStatus == "ended"}
