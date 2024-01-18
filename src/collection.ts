@@ -1,13 +1,12 @@
 import localCanisterIds from "../power-equalizer/.dfx/local/canister_ids.json";
 
 export let collection = {
-  name: "Cherries",
+  name: "BTC Flower Gen 2.0",
   canisterId:
     process.env.NODE_ENV === "development"
       ? localCanisterIds.staging.local
-      : "y2ga5-lyaaa-aaaae-qae2q-cai",
-  description:
-    "An evolution of artist Ludo's decade-long exploration of the vanitas style. Originating from an original 2010 work in Williamsburg, Brooklyn, the collection finds its distinct aesthetic in the fusion of cherry pairs based on human skulls, embodying the eternal duality of existence. The digital manifestations of these intricate pieces are joined with FP DAO as its 3rd collaboration, bringing the largest and most diverse trait variety of its kind. They exist as an ensemble of 6,666—the symbolic fruits that perpetuate the legacy of artistic discourse in the cryptosphere.",
+      : "u2kyg-aaaaa-aaaag-qc5ja-cai",
+  description: "In early 2018, BTC Flower (‘RIP Banking System’) made its physical debut on the streets of Paris then around the world. 2021, a virtual collection of 2009 Flowers bloomed for the first time in the cryptosphere. Using digital format at its best, the randomly generated artwork evolves following the Bitcoin price. BTC Flower Gen 2.0 celebrates, in a pure pixel format, the 2nd year anniversary of the digital plant as well as new ambitions to reach Flower Power vision.",
   // show nft asset preview immediately after purchase
   previewEnabled: false, // if true, NFT canister must have revealDelay = 0
 };
