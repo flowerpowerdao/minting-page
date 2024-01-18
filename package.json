@@ -13,6 +13,7 @@
     "vite": "vite --port 3000",
     "build": "vite build",
     "serve": "vite preview",
+    "postinstall": "cd power-equalizer && npm install && vessel install",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "@sveltejs/vite-plugin-svelte": "^2.0.2",
     "@tailwindcss/typography": "^0.5.8",
     "@tsconfig/svelte": "^3.0.0",
+    "@types/node": "^20.11.5",
     "autoprefixer": "^10.4.13",
     "cssnano": "^5.1.14",
     "postcss": "^8.4.20",

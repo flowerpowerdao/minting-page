@@ -304,7 +304,6 @@ export interface SaleSettings {
   'endTime' : Time__1,
   'totalToSell' : bigint,
   'sold' : bigint,
-  'bulkPricing' : Array<[bigint, bigint]>,
   'whitelistTime' : Time__1,
   'salePrice' : bigint,
   'remaining' : bigint,

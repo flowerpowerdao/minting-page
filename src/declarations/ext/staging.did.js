@@ -275,7 +275,6 @@ export const idlFactory = ({ IDL }) => {
     'endTime' : Time__1,
     'totalToSell' : IDL.Nat,
     'sold' : IDL.Nat,
-    'bulkPricing' : IDL.Vec(IDL.Tuple(IDL.Nat64, IDL.Nat64)),
     'whitelistTime' : Time__1,
     'salePrice' : IDL.Nat64,
     'remaining' : IDL.Nat,

@@ -16,6 +16,7 @@
     try {
       saleSettings = await $store.extActor.salesSettings($store.accountId);
     } catch (err) {
+      console.error(err);
       error = "Sale didn't start yet.";
     }
 
@@ -125,9 +126,7 @@
           </div>
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
-          {#each saleSettings.bulkPricing as [count, price]}
-            <BuyNftButton {count} {price} {saleStatus} />
-          {/each}
+          <BuyNftButton count={1} price={saleSettings.price} {saleStatus} />
         </div>
       </div>
     {:else if saleStatus == "ended"}
