@@ -2,6 +2,9 @@
   "assets": {
     "ic": "3rqw6-naaaa-aaaae-qaeqa-cai"
   },
+  "staging": {
+    "ic": "rqwvp-daaaa-aaaam-ab42a-cai"
+  },
   "assets-staging": {
     "ic": "246sq-ciaaa-aaaae-qaexq-cai"
   }
