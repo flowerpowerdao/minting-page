@@ -2,7 +2,7 @@ import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
 import { Actor, HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
-import { AccountIdentifier } from "@dfinity/nns";
+import { AccountIdentifier } from "@dfinity/ledger-icp";
 import { InterfaceFactory } from "@dfinity/candid/lib/cjs/idl";
 import {
   staging as ext,

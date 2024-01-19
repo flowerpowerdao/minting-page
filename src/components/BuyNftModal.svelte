@@ -55,12 +55,7 @@
       let accountId = $store.accountId;
       console.log("reserving for account", accountId);
 
-      let res = await $store.extActor.reserve(
-        price,
-        count,
-        accountId,
-        _getRandomBytes()
-      );
+      let res = await $store.extActor.reserve(accountId);
 
       if (isErr(res)) {
         throw fromErr(res); // will be caught at the end of the method
@@ -91,7 +86,7 @@
           res = await $store.extActor.retrieve(payToAddress);
         } catch (e) {
           // pause for 1 second
-          setTimeout(() => {}, 1000);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           console.warn(e);
           continue; // if we can't reach the canister due to subnet or canister overloads, we just try again
         }
