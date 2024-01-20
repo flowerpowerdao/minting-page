@@ -289,17 +289,17 @@ export const createStore = ({
       let res = await store.ledgerActor.account_balance({
         account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
       });
-      balance = Number(res.e8s / 100000000n);
+      balance = Number(res.e8s / 1_000_000n) / 100;
     } else if (store.isAuthed === "bitfinity") {
       if (process.env.DFX_NETWORK !== "ic") {
         let res = await store.ledgerActor.account_balance({
           account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
         });
-        balance = Number(res.e8s / 100000000n);
+        balance = Number(res.e8s / 1_000_000n) / 100;
       } else {
         let result = await window.ic.bitfinityWallet.getUserAssets();
         let ICP = result.find((asset) => asset.symbol === "ICP");
-        balance = Number(BigInt(ICP.balance) / 100000000n);
+        balance = Number(BigInt(ICP.balance) / 1_000_000n) / 100;
       }
     }
     console.log("balance", balance);
