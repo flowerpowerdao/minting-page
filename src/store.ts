@@ -352,8 +352,9 @@ export const createStore = ({
     });
     console.log("sent", res);
 
-    await updateBalance();
-    console.log("updated balance");
+    updateBalance().then(() => {
+      console.log("updated balance");
+    });
   }
 
   const disconnect = async () => {
