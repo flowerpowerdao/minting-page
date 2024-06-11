@@ -155,7 +155,10 @@ export const createStore = ({
       isAuthed: "stoic",
     }));
 
-    await updateBalance();
+    await Promise.all([
+      updateBalance(),
+      updateSeedBalance(),
+    ]);
   };
 
   const plugConnect = async () => {
@@ -234,7 +237,10 @@ export const createStore = ({
       isAuthed: "plug",
     }));
 
-    await updateBalance();
+    await Promise.all([
+      updateBalance(),
+      updateSeedBalance(),
+    ]);
 
     console.log("plug is authed");
   };
@@ -298,7 +304,10 @@ export const createStore = ({
       isAuthed: "bitfinity",
     }));
 
-    await updateBalance();
+    await Promise.all([
+      updateBalance(),
+      updateSeedBalance(),
+    ]);
 
     console.log("bitfinity is authed");
   };
@@ -332,6 +341,22 @@ export const createStore = ({
     }
     console.log("balance", balance);
     update((prevState) => ({ ...prevState, balance }));
+  }
+
+  async function updateSeedBalance() {
+    const store = get({ subscribe });
+
+    if (!store.isAuthed) {
+      return;
+    }
+
+    let res = await store.seedActor.icrc1_balance_of({
+      owner: store.principal,
+      subaccount: [],
+    });
+    let balance = Number(res / 1_000_000n) / 100;
+    console.log("balance SEED", balance);
+    update((prevState) => ({ ...prevState, seedBalance: balance }));
   }
 
   async function transfer(actor: ActorSubclass<ICRC1_SERVICE>, toAddress: string, amount: bigint) {
