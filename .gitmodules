@@ -1,4 +1,4 @@
 [submodule "power-equalizer"]
 	path = power-equalizer
 	url = https://github.com/flowerpowerdao/power-equalizer-v3
-	branch = sale-icrc1
+	branch = main
