@@ -90,8 +90,8 @@
         try {
           res = await $store.extActor.retrieve(payToAddress);
         } catch (e) {
-          // pause for 1 second
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          // pause for 2 seconds
+          await new Promise((resolve) => setTimeout(resolve, 2000));
           console.warn(e);
           continue; // if we can't reach the canister due to subnet or canister overloads, we just try again
         }
