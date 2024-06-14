@@ -271,19 +271,16 @@ export const createStore = ({
     const extActor = (await window.ic.bitfinityWallet.createActor({
       canisterId: collection.canisterId,
       interfaceFactory: extIdlFactory,
-      host: HOST,
     })) as typeof ext;
 
     const icpActor = (await window.ic.bitfinityWallet.createActor({
       canisterId: ledgerCanisterId,
       interfaceFactory: icrc1IdlFactory,
-      host: HOST,
     })) as ActorSubclass<ICRC1_SERVICE>;
 
     const seedActor = (await window.ic.bitfinityWallet.createActor({
       canisterId: seedCanisterId,
       interfaceFactory: icrc1IdlFactory,
-      host: HOST,
     })) as ActorSubclass<ICRC1_SERVICE>;
 
     if (!extActor || !icpActor || !seedActor) {
@@ -418,7 +415,7 @@ export const store = createStore({
   whitelist: [
     collection.canisterId,
     ledgerCanisterId,
-    // 'ryjl3-tyaaa-aaaaa-aaaba-cai',
+    seedCanisterId,
   ],
   host: HOST,
 });
@@ -435,7 +432,7 @@ declare global {
         createActor: (options: {
           canisterId: string;
           interfaceFactory: InterfaceFactory;
-          host: string;
+          host?: string;
         }) => Promise<Actor>;
         getPrincipal: () => Promise<Principal>;
         disconnect: () => Promise<boolean>;
