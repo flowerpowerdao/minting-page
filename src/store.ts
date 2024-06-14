@@ -399,6 +399,15 @@ export const createStore = ({
     });
   };
 
+  async function getTokens() {
+    const store = get({subscribe});
+    let res = await store.extActor.tokens(store.accountId);
+    if ('ok' in res) {
+      return res.ok;
+    }
+    return [];
+  }
+
   return {
     subscribe,
     update,
@@ -408,6 +417,7 @@ export const createStore = ({
     disconnect,
     transfer,
     checkConnections,
+    getTokens,
   };
 };
 

@@ -12,10 +12,12 @@
   let startDateText = "-";
   let slotEndDateText = "-";
   let error = "";
+  let tokens: Uint32Array | number[] = [];
 
   let fetchData = async () => {
     try {
       saleSettings = await $store.extActor.salesSettings($store.principal?.toText() || '');
+      tokens = await store.getTokens();
     } catch (err) {
       console.error(err);
       error = "Sale didn't start yet.";
@@ -159,6 +161,12 @@
       <div class="text-5xl">SOLD OUT</div>
     {/if}
   </div>
+
+  {#if tokens.length}
+    <div class="flex">
+      You purchased: {tokens.length} NFT{#if tokens.length !== 1}s{/if}
+    </div>
+  {/if}
 {:else if error}
   <div class="text-red-700 text-xl flex flex-col grow">
     <div>Something went wrong</div>
