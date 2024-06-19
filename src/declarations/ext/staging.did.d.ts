@@ -1,5 +1,6 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export type AccountIdentifier = string;
 export type AccountIdentifier__1 = string;
@@ -8,7 +9,10 @@ export type AccountIdentifier__3 = string;
 export type AccountIdentifier__4 = string;
 export type AccountIdentifier__5 = string;
 export type AccountIdentifier__6 = string;
-export type AccountIdentifier__7 = string;
+export type Address = string;
+export type Address__1 = string;
+export type Address__2 = string;
+export type Address__3 = string;
 export interface AssetV2 {
   'thumbnail' : [] | [File],
   'payloadUrl' : [] | [string],
@@ -34,6 +38,7 @@ export interface Canister {
   'backupChunk' : ActorMethod<[bigint, bigint], StableChunk>,
   'balance' : ActorMethod<[BalanceRequest], BalanceResponse>,
   'bearer' : ActorMethod<[TokenIdentifier__3], Result_9>,
+  'cancelTimers' : ActorMethod<[], undefined>,
   'cronDisbursements' : ActorMethod<[], undefined>,
   'cronFailedSales' : ActorMethod<[], undefined>,
   'cronSalesSettlements' : ActorMethod<[], undefined>,
@@ -41,14 +46,14 @@ export interface Canister {
   'details' : ActorMethod<[TokenIdentifier__1], Result_8>,
   'enableSale' : ActorMethod<[], bigint>,
   'extensions' : ActorMethod<[], Array<Extension>>,
-  'failedSales' : ActorMethod<[], Array<[AccountIdentifier__5, SubAccount__1]>>,
+  'failedSales' : ActorMethod<[], Array<SaleV3>>,
   'frontends' : ActorMethod<[], Array<[string, Frontend]>>,
   'getCanistergeekInformation' : ActorMethod<
     [GetInformationRequest],
     GetInformationResponse
   >,
   'getChunkCount' : ActorMethod<[bigint], bigint>,
-  'getDisbursements' : ActorMethod<[], Array<Disbursement>>,
+  'getDisbursements' : ActorMethod<[], Array<DisbursementV2>>,
   'getMinter' : ActorMethod<[], Principal>,
   'getRegistry' : ActorMethod<[], Array<[TokenIndex, AccountIdentifier__3]>>,
   'getTokenToAssetMapping' : ActorMethod<[], Array<[TokenIndex, string]>>,
@@ -78,17 +83,19 @@ export interface Canister {
     [],
     { 'failedSettlements' : bigint, 'disbursements' : bigint }
   >,
-  'reserve' : ActorMethod<[AccountIdentifier__5], Result_5>,
+  'reserve' : ActorMethod<[Address__1, Principal], Result_5>,
   'restoreChunk' : ActorMethod<[StableChunk], undefined>,
-  'retrieve' : ActorMethod<[AccountIdentifier__5], Result_4>,
+  'retrieve' : ActorMethod<[Address__1], Result_4>,
   'saleTransactions' : ActorMethod<[], Array<SaleTransaction>>,
-  'salesSettings' : ActorMethod<[AccountIdentifier__4], SaleSettings>,
-  'salesSettlements' : ActorMethod<[], Array<[AccountIdentifier__5, Sale]>>,
+  'salesSettings' : ActorMethod<[Address__1], SaleSettingsV3>,
+  'salesSettlements' : ActorMethod<[], Array<[Address__1, Sale]>>,
+  'setTimers' : ActorMethod<[], undefined>,
   'settle' : ActorMethod<[TokenIdentifier__1], Result_3>,
   'settlements' : ActorMethod<
     [],
     Array<[TokenIndex__1, AccountIdentifier__2, bigint]>
   >,
+  'shuffleAssets' : ActorMethod<[], boolean>,
   'shuffleTokensForSale' : ActorMethod<[], undefined>,
   'stats' : ActorMethod<
     [],
@@ -99,7 +106,6 @@ export interface Canister {
     undefined
   >,
   'supply' : ActorMethod<[], Result_2>,
-  'toAccountIdentifier' : ActorMethod<[string, bigint], AccountIdentifier__4>,
   'tokens' : ActorMethod<[AccountIdentifier__3], Result_1>,
   'tokens_ext' : ActorMethod<[AccountIdentifier__3], Result>,
   'transactions' : ActorMethod<[], Array<TransactionV2>>,
@@ -155,9 +161,16 @@ export interface DailyMetricsData {
   'timeMillis' : bigint,
 }
 export interface Disbursement {
-  'to' : AccountIdentifier__6,
+  'to' : AccountIdentifier__5,
   'tokenIndex' : TokenIndex__3,
   'fromSubaccount' : SubAccount__2,
+  'amount' : bigint,
+}
+export interface DisbursementV2 {
+  'to' : Address__2,
+  'tokenIndex' : TokenIndex__3,
+  'fromSubaccount' : SubAccount__2,
+  'ledger' : Principal,
   'amount' : bigint,
 }
 export type Duration = { 'nanoseconds' : bigint } |
@@ -266,12 +279,12 @@ export interface InitArgs {
   'restoreEnabled' : [] | [boolean],
   'revealDelay' : Duration,
   'airdrop' : Array<AccountIdentifier>,
-  'royalties' : Array<[AccountIdentifier, bigint]>,
-  'salePrice' : bigint,
+  'royalties' : Array<[Address, bigint]>,
+  'salePrices' : Array<PriceInfoWithLimit>,
   'marketDelay' : [] | [Duration],
   'singleAssetCollection' : [] | [boolean],
   'publicSaleStart' : Time,
-  'salesDistribution' : Array<[AccountIdentifier, bigint]>,
+  'salesDistribution' : Array<[Address, bigint]>,
 }
 export interface ListRequest {
   'token' : TokenIdentifier__1,
@@ -327,6 +340,12 @@ export interface NumericEntity {
   'first' : bigint,
   'last' : bigint,
 }
+export interface PriceInfo { 'ledger' : Principal, 'price' : bigint }
+export interface PriceInfoWithLimit {
+  'limit' : [] | [bigint],
+  'ledger' : Principal,
+  'price' : bigint,
+}
 export type RemainingSpots = bigint;
 export type Result = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Uint8Array | number[]]]>
@@ -340,7 +359,7 @@ export type Result_3 = { 'ok' : null } |
   { 'err' : CommonError__1 };
 export type Result_4 = { 'ok' : null } |
   { 'err' : string };
-export type Result_5 = { 'ok' : [AccountIdentifier__5, bigint] } |
+export type Result_5 = { 'ok' : [Address__1, bigint] } |
   { 'err' : string };
 export type Result_6 = { 'ok' : Metadata__1 } |
   { 'err' : CommonError };
@@ -348,25 +367,28 @@ export type Result_7 = { 'ok' : AccountIdentifier__2 } |
   { 'err' : CommonError__1 };
 export type Result_8 = { 'ok' : [AccountIdentifier__2, [] | [Listing]] } |
   { 'err' : CommonError__1 };
-export type Result_9 = { 'ok' : AccountIdentifier__7 } |
+export type Result_9 = { 'ok' : AccountIdentifier__6 } |
   { 'err' : CommonError__2 };
 export interface Sale {
   'expires' : Time__2,
   'subaccount' : SubAccount__1,
   'whitelistName' : [] | [string],
   'tokens' : Uint32Array | number[],
-  'buyer' : AccountIdentifier__5,
+  'buyer' : AccountIdentifier__4,
   'price' : bigint,
 }
-export interface SaleSettings {
+export interface SaleSettingsV3 {
   'startTime' : Time__2,
   'whitelist' : boolean,
   'endTime' : Time__2,
   'totalToSell' : bigint,
   'sold' : bigint,
+  'remainingByLedger' : Array<[Principal, bigint]>,
   'whitelistTime' : Time__2,
+  'prices' : Array<PriceInfo>,
   'salePrice' : bigint,
   'remaining' : bigint,
+  'salePrices' : Array<PriceInfo>,
   'openEdition' : boolean,
   'price' : bigint,
 }
@@ -374,7 +396,7 @@ export interface SaleTransaction {
   'time' : Time__2,
   'seller' : Principal,
   'tokens' : Uint32Array | number[],
-  'buyer' : AccountIdentifier__5,
+  'buyer' : AccountIdentifier__4,
   'price' : bigint,
 }
 export interface SaleV1 {
@@ -382,7 +404,16 @@ export interface SaleV1 {
   'slot' : [] | [WhitelistSlot],
   'subaccount' : SubAccount__1,
   'tokens' : Uint32Array | number[],
-  'buyer' : AccountIdentifier__5,
+  'buyer' : AccountIdentifier__4,
+  'price' : bigint,
+}
+export interface SaleV3 {
+  'expires' : Time__2,
+  'subaccount' : SubAccount__1,
+  'whitelistName' : [] | [string],
+  'tokens' : Uint32Array | number[],
+  'ledger' : Principal,
+  'buyer' : Address__3,
   'price' : bigint,
 }
 export interface Settlement {
@@ -432,7 +463,8 @@ export type StableChunk__1 = [] | [
     { 'v3_chunk' : { 'assetsChunk' : Array<AssetV2> } }
 ];
 export type StableChunk__2 = [] | [
-  { 'v1' : { 'disbursements' : Array<Disbursement> } }
+  { 'v1' : { 'disbursements' : Array<Disbursement> } } |
+    { 'v2' : { 'disbursements' : Array<DisbursementV2> } }
 ];
 export type StableChunk__3 = [] | [
   {
@@ -458,10 +490,10 @@ export type StableChunk__3 = [] | [
 export type StableChunk__4 = [] | [
   {
       'v1' : {
-        'whitelist' : Array<[bigint, AccountIdentifier__5, WhitelistSlot]>,
-        'salesSettlements' : Array<[AccountIdentifier__5, SaleV1]>,
+        'whitelist' : Array<[bigint, AccountIdentifier__4, WhitelistSlot]>,
+        'salesSettlements' : Array<[AccountIdentifier__4, SaleV1]>,
         'totalToSell' : bigint,
-        'failedSales' : Array<[AccountIdentifier__5, SubAccount__1]>,
+        'failedSales' : Array<[AccountIdentifier__4, SubAccount__1]>,
         'sold' : bigint,
         'saleTransactionChunk' : Array<SaleTransaction>,
         'saleTransactionCount' : bigint,
@@ -472,9 +504,9 @@ export type StableChunk__4 = [] | [
     } |
     {
       'v2' : {
-        'salesSettlements' : Array<[AccountIdentifier__5, Sale]>,
+        'salesSettlements' : Array<[AccountIdentifier__4, Sale]>,
         'totalToSell' : bigint,
-        'failedSales' : Array<[AccountIdentifier__5, SubAccount__1]>,
+        'failedSales' : Array<[AccountIdentifier__4, SubAccount__1]>,
         'sold' : bigint,
         'saleTransactionChunk' : Array<SaleTransaction>,
         'saleTransactionCount' : bigint,
@@ -491,10 +523,10 @@ export type StableChunk__5 = [] | [{ 'v1' : { 'isShuffled' : boolean } }];
 export type StableChunk__6 = [] | [
   {
       'v1' : {
-        'owners' : Array<[AccountIdentifier__7, Uint32Array | number[]]>,
+        'owners' : Array<[AccountIdentifier__6, Uint32Array | number[]]>,
         'tokenMetadata' : Array<[TokenIndex__4, Metadata]>,
         'supply' : Balance__2,
-        'registry' : Array<[TokenIndex__4, AccountIdentifier__7]>,
+        'registry' : Array<[TokenIndex__4, AccountIdentifier__6]>,
         'nextTokenId' : TokenIndex__4,
       }
     }
@@ -573,8 +605,10 @@ export interface Whitelist {
   'name' : string,
   'oneTimeOnly' : boolean,
   'addresses' : Array<AccountIdentifier>,
-  'price' : bigint,
+  'prices' : Array<PriceInfo>,
 }
 export interface WhitelistSlot { 'end' : Time, 'start' : Time }
 export type WhitelistSpotId = string;
 export interface _SERVICE extends Canister {}
+export declare const idlFactory: IDL.InterfaceFactory;
+export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

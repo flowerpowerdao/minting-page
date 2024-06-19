@@ -1,20 +1,23 @@
 <script lang="ts">
   import { collection } from "../collection";
-  import type { SaleSettings } from "../declarations/ext/staging.did";
+  import type { SaleSettingsV3 } from "../declarations/ext/staging.did";
   import { store } from "../store";
   import formatDistance from "date-fns/formatDistance";
   import { onMount } from "svelte";
   import BuyNftButton from "./BuyNftButton.svelte";
+  import {Principal} from '@dfinity/principal';
 
-  let saleSettings: SaleSettings;
+  let saleSettings: SaleSettingsV3;
   let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
   let startDateText = "-";
   let slotEndDateText = "-";
   let error = "";
+  let tokens: Uint32Array | number[] = [];
 
   let fetchData = async () => {
     try {
-      saleSettings = await $store.extActor.salesSettings($store.accountId);
+      saleSettings = await $store.extActor.salesSettings($store.principal?.toText() || '');
+      tokens = await store.getTokens();
     } catch (err) {
       console.error(err);
       error = "Sale didn't start yet.";
@@ -42,6 +45,18 @@
       });
     }
   };
+
+  function getSymbol(ledger: Principal) {
+    if (ledger.toText() === 'ryjl3-tyaaa-aaaaa-aaaba-cai') {
+      return "ICP";
+    } else if (ledger.toText() === 'fua74-fyaaa-aaaan-qecrq-cai') {
+      return "SEED";
+    }
+  }
+
+  function getRemainingForLedger(ledger: Principal) {
+    return saleSettings.remainingByLedger.find(([ldgr, _]) => ldgr.toText() === ledger.toText())?.[1] || 0n;
+  }
 
   onMount(async () => {
     let timer = setInterval(fetchData, 3000);
@@ -126,13 +141,32 @@
           </div>
         {/if}
         <div class="flex flex-wrap justify-center gap-20">
-          <BuyNftButton count={1} price={saleSettings.price} {saleStatus} />
+          {#each saleSettings.prices as priceInfo}
+            <BuyNftButton
+              count={1}
+              price={priceInfo.price}
+              symbol={getSymbol(priceInfo.ledger)}
+              ledger={priceInfo.ledger}
+              {saleStatus}
+              disabled={getRemainingForLedger(priceInfo.ledger) == 0n}
+            >
+              {#if getRemainingForLedger(priceInfo.ledger) == 0n}
+                <small>sold out</small>
+              {/if}
+            </BuyNftButton>
+          {/each}
         </div>
       </div>
     {:else if saleStatus == "ended"}
       <div class="text-5xl">SOLD OUT</div>
     {/if}
   </div>
+
+  {#if tokens.length}
+    <div class="flex">
+      You purchased: {tokens.length} NFT{#if tokens.length !== 1}s{/if}
+    </div>
+  {/if}
 {:else if error}
   <div class="text-red-700 text-xl flex flex-col grow">
     <div>Something went wrong</div>

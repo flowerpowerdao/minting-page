@@ -15,4 +15,7 @@
     <StoicButton bind:loading {toggleModal} />
     <BitfinityButton bind:loading {toggleModal} />
   </div>
+  <div class="flex mt-10 justify-end">
+    <a class="underline decoration-dotted" href="https://x.com/StoicWalletApp/status/1706317772194517482" target="_blank" rel="noopener noreferrer">Problems connecting with Stoic?</a>
+  </div>
 </Modal>

@@ -20,12 +20,22 @@ export const idlFactory = ({ IDL }) => {
     'startPrice' : IDL.Nat64,
   });
   const AccountIdentifier = IDL.Text;
+  const PriceInfo = IDL.Record({
+    'ledger' : IDL.Principal,
+    'price' : IDL.Nat64,
+  });
   const Whitelist = IDL.Record({
     'startTime' : Time,
     'endTime' : IDL.Opt(Time),
     'name' : IDL.Text,
     'oneTimeOnly' : IDL.Bool,
     'addresses' : IDL.Vec(AccountIdentifier),
+    'prices' : IDL.Vec(PriceInfo),
+  });
+  const Address = IDL.Text;
+  const PriceInfoWithLimit = IDL.Record({
+    'limit' : IDL.Opt(IDL.Nat),
+    'ledger' : IDL.Principal,
     'price' : IDL.Nat64,
   });
   const InitArgs = IDL.Record({
@@ -41,12 +51,12 @@ export const idlFactory = ({ IDL }) => {
     'restoreEnabled' : IDL.Opt(IDL.Bool),
     'revealDelay' : Duration,
     'airdrop' : IDL.Vec(AccountIdentifier),
-    'royalties' : IDL.Vec(IDL.Tuple(AccountIdentifier, IDL.Nat64)),
-    'salePrice' : IDL.Nat64,
+    'royalties' : IDL.Vec(IDL.Tuple(Address, IDL.Nat64)),
+    'salePrices' : IDL.Vec(PriceInfoWithLimit),
     'marketDelay' : IDL.Opt(Duration),
     'singleAssetCollection' : IDL.Opt(IDL.Bool),
     'publicSaleStart' : Time,
-    'salesDistribution' : IDL.Vec(IDL.Tuple(AccountIdentifier, IDL.Nat64)),
+    'salesDistribution' : IDL.Vec(IDL.Tuple(Address, IDL.Nat64)),
   });
   const File = IDL.Record({
     'data' : IDL.Vec(IDL.Vec(IDL.Nat8)),
@@ -138,7 +148,7 @@ export const idlFactory = ({ IDL }) => {
       'v3_chunk' : IDL.Record({ 'assetsChunk' : IDL.Vec(AssetV2) }),
     })
   );
-  const AccountIdentifier__5 = IDL.Text;
+  const AccountIdentifier__4 = IDL.Text;
   const WhitelistSlot = IDL.Record({ 'end' : Time, 'start' : Time });
   const Time__2 = IDL.Int;
   const SubAccount__1 = IDL.Vec(IDL.Nat8);
@@ -148,14 +158,14 @@ export const idlFactory = ({ IDL }) => {
     'slot' : IDL.Opt(WhitelistSlot),
     'subaccount' : SubAccount__1,
     'tokens' : IDL.Vec(TokenIndex__2),
-    'buyer' : AccountIdentifier__5,
+    'buyer' : AccountIdentifier__4,
     'price' : IDL.Nat64,
   });
   const SaleTransaction = IDL.Record({
     'time' : Time__2,
     'seller' : IDL.Principal,
     'tokens' : IDL.Vec(TokenIndex__2),
-    'buyer' : AccountIdentifier__5,
+    'buyer' : AccountIdentifier__4,
     'price' : IDL.Nat64,
   });
   const Sale = IDL.Record({
@@ -163,7 +173,7 @@ export const idlFactory = ({ IDL }) => {
     'subaccount' : SubAccount__1,
     'whitelistName' : IDL.Opt(IDL.Text),
     'tokens' : IDL.Vec(TokenIndex__2),
-    'buyer' : AccountIdentifier__5,
+    'buyer' : AccountIdentifier__4,
     'price' : IDL.Nat64,
   });
   const WhitelistSpotId = IDL.Text;
@@ -172,11 +182,11 @@ export const idlFactory = ({ IDL }) => {
     IDL.Variant({
       'v1' : IDL.Record({
         'whitelist' : IDL.Vec(
-          IDL.Tuple(IDL.Nat64, AccountIdentifier__5, WhitelistSlot)
+          IDL.Tuple(IDL.Nat64, AccountIdentifier__4, WhitelistSlot)
         ),
-        'salesSettlements' : IDL.Vec(IDL.Tuple(AccountIdentifier__5, SaleV1)),
+        'salesSettlements' : IDL.Vec(IDL.Tuple(AccountIdentifier__4, SaleV1)),
         'totalToSell' : IDL.Nat,
-        'failedSales' : IDL.Vec(IDL.Tuple(AccountIdentifier__5, SubAccount__1)),
+        'failedSales' : IDL.Vec(IDL.Tuple(AccountIdentifier__4, SubAccount__1)),
         'sold' : IDL.Nat,
         'saleTransactionChunk' : IDL.Vec(SaleTransaction),
         'saleTransactionCount' : IDL.Nat,
@@ -185,9 +195,9 @@ export const idlFactory = ({ IDL }) => {
         'tokensForSale' : IDL.Vec(TokenIndex__2),
       }),
       'v2' : IDL.Record({
-        'salesSettlements' : IDL.Vec(IDL.Tuple(AccountIdentifier__5, Sale)),
+        'salesSettlements' : IDL.Vec(IDL.Tuple(AccountIdentifier__4, Sale)),
         'totalToSell' : IDL.Nat,
-        'failedSales' : IDL.Vec(IDL.Tuple(AccountIdentifier__5, SubAccount__1)),
+        'failedSales' : IDL.Vec(IDL.Tuple(AccountIdentifier__4, SubAccount__1)),
         'sold' : IDL.Nat,
         'saleTransactionChunk' : IDL.Vec(SaleTransaction),
         'saleTransactionCount' : IDL.Nat,
@@ -204,21 +214,30 @@ export const idlFactory = ({ IDL }) => {
       }),
     })
   );
-  const AccountIdentifier__6 = IDL.Text;
+  const AccountIdentifier__5 = IDL.Text;
   const TokenIndex__3 = IDL.Nat32;
   const SubAccount__2 = IDL.Vec(IDL.Nat8);
   const Disbursement = IDL.Record({
-    'to' : AccountIdentifier__6,
+    'to' : AccountIdentifier__5,
     'tokenIndex' : TokenIndex__3,
     'fromSubaccount' : SubAccount__2,
+    'amount' : IDL.Nat64,
+  });
+  const Address__2 = IDL.Text;
+  const DisbursementV2 = IDL.Record({
+    'to' : Address__2,
+    'tokenIndex' : TokenIndex__3,
+    'fromSubaccount' : SubAccount__2,
+    'ledger' : IDL.Principal,
     'amount' : IDL.Nat64,
   });
   const StableChunk__2 = IDL.Opt(
     IDL.Variant({
       'v1' : IDL.Record({ 'disbursements' : IDL.Vec(Disbursement) }),
+      'v2' : IDL.Record({ 'disbursements' : IDL.Vec(DisbursementV2) }),
     })
   );
-  const AccountIdentifier__7 = IDL.Text;
+  const AccountIdentifier__6 = IDL.Text;
   const TokenIndex__4 = IDL.Nat32;
   const Metadata = IDL.Variant({
     'fungible' : IDL.Record({
@@ -234,11 +253,11 @@ export const idlFactory = ({ IDL }) => {
     IDL.Variant({
       'v1' : IDL.Record({
         'owners' : IDL.Vec(
-          IDL.Tuple(AccountIdentifier__7, IDL.Vec(TokenIndex__4))
+          IDL.Tuple(AccountIdentifier__6, IDL.Vec(TokenIndex__4))
         ),
         'tokenMetadata' : IDL.Vec(IDL.Tuple(TokenIndex__4, Metadata)),
         'supply' : Balance__2,
-        'registry' : IDL.Vec(IDL.Tuple(TokenIndex__4, AccountIdentifier__7)),
+        'registry' : IDL.Vec(IDL.Tuple(TokenIndex__4, AccountIdentifier__6)),
         'nextTokenId' : TokenIndex__4,
       }),
     })
@@ -288,7 +307,7 @@ export const idlFactory = ({ IDL }) => {
     'Other' : IDL.Text,
   });
   const Result_9 = IDL.Variant({
-    'ok' : AccountIdentifier__7,
+    'ok' : AccountIdentifier__6,
     'err' : CommonError__2,
   });
   const CommonError__1 = IDL.Variant({
@@ -300,6 +319,16 @@ export const idlFactory = ({ IDL }) => {
     'err' : CommonError__1,
   });
   const Extension = IDL.Text;
+  const Address__3 = IDL.Text;
+  const SaleV3 = IDL.Record({
+    'expires' : Time__2,
+    'subaccount' : SubAccount__1,
+    'whitelistName' : IDL.Opt(IDL.Text),
+    'tokens' : IDL.Vec(TokenIndex__2),
+    'ledger' : IDL.Principal,
+    'buyer' : Address__3,
+    'price' : IDL.Nat64,
+  });
   const StatusRequest = IDL.Record({
     'memory_size' : IDL.Bool,
     'cycles' : IDL.Bool,
@@ -473,20 +502,23 @@ export const idlFactory = ({ IDL }) => {
     'Other' : IDL.Text,
   });
   const Result_6 = IDL.Variant({ 'ok' : Metadata__1, 'err' : CommonError });
+  const Address__1 = IDL.Text;
   const Result_5 = IDL.Variant({
-    'ok' : IDL.Tuple(AccountIdentifier__5, IDL.Nat64),
+    'ok' : IDL.Tuple(Address__1, IDL.Nat64),
     'err' : IDL.Text,
   });
-  const AccountIdentifier__4 = IDL.Text;
-  const SaleSettings = IDL.Record({
+  const SaleSettingsV3 = IDL.Record({
     'startTime' : Time__2,
     'whitelist' : IDL.Bool,
     'endTime' : Time__2,
     'totalToSell' : IDL.Nat,
     'sold' : IDL.Nat,
+    'remainingByLedger' : IDL.Vec(IDL.Tuple(IDL.Principal, IDL.Nat)),
     'whitelistTime' : Time__2,
+    'prices' : IDL.Vec(PriceInfo),
     'salePrice' : IDL.Nat64,
     'remaining' : IDL.Nat,
+    'salePrices' : IDL.Vec(PriceInfo),
     'openEdition' : IDL.Bool,
     'price' : IDL.Nat64,
   });
@@ -546,6 +578,7 @@ export const idlFactory = ({ IDL }) => {
     'backupChunk' : IDL.Func([IDL.Nat, IDL.Nat], [StableChunk], ['query']),
     'balance' : IDL.Func([BalanceRequest], [BalanceResponse], ['query']),
     'bearer' : IDL.Func([TokenIdentifier__3], [Result_9], ['query']),
+    'cancelTimers' : IDL.Func([], [], []),
     'cronDisbursements' : IDL.Func([], [], []),
     'cronFailedSales' : IDL.Func([], [], []),
     'cronSalesSettlements' : IDL.Func([], [], []),
@@ -553,11 +586,7 @@ export const idlFactory = ({ IDL }) => {
     'details' : IDL.Func([TokenIdentifier__1], [Result_8], ['query']),
     'enableSale' : IDL.Func([], [IDL.Nat], []),
     'extensions' : IDL.Func([], [IDL.Vec(Extension)], ['query']),
-    'failedSales' : IDL.Func(
-        [],
-        [IDL.Vec(IDL.Tuple(AccountIdentifier__5, SubAccount__1))],
-        ['query'],
-      ),
+    'failedSales' : IDL.Func([], [IDL.Vec(SaleV3)], ['query']),
     'frontends' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Text, Frontend))], []),
     'getCanistergeekInformation' : IDL.Func(
         [GetInformationRequest],
@@ -565,7 +594,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getChunkCount' : IDL.Func([IDL.Nat], [IDL.Nat], ['query']),
-    'getDisbursements' : IDL.Func([], [IDL.Vec(Disbursement)], ['query']),
+    'getDisbursements' : IDL.Func([], [IDL.Vec(DisbursementV2)], ['query']),
     'getMinter' : IDL.Func([], [IDL.Principal], ['query']),
     'getRegistry' : IDL.Func(
         [],
@@ -619,26 +648,24 @@ export const idlFactory = ({ IDL }) => {
         ],
         ['query'],
       ),
-    'reserve' : IDL.Func([AccountIdentifier__5], [Result_5], []),
+    'reserve' : IDL.Func([Address__1, IDL.Principal], [Result_5], []),
     'restoreChunk' : IDL.Func([StableChunk], [], []),
-    'retrieve' : IDL.Func([AccountIdentifier__5], [Result_4], []),
+    'retrieve' : IDL.Func([Address__1], [Result_4], []),
     'saleTransactions' : IDL.Func([], [IDL.Vec(SaleTransaction)], ['query']),
-    'salesSettings' : IDL.Func(
-        [AccountIdentifier__4],
-        [SaleSettings],
-        ['query'],
-      ),
+    'salesSettings' : IDL.Func([Address__1], [SaleSettingsV3], ['query']),
     'salesSettlements' : IDL.Func(
         [],
-        [IDL.Vec(IDL.Tuple(AccountIdentifier__5, Sale))],
+        [IDL.Vec(IDL.Tuple(Address__1, Sale))],
         ['query'],
       ),
+    'setTimers' : IDL.Func([], [], []),
     'settle' : IDL.Func([TokenIdentifier__1], [Result_3], []),
     'settlements' : IDL.Func(
         [],
         [IDL.Vec(IDL.Tuple(TokenIndex__1, AccountIdentifier__2, IDL.Nat64))],
         ['query'],
       ),
+    'shuffleAssets' : IDL.Func([], [IDL.Bool], []),
     'shuffleTokensForSale' : IDL.Func([], [], []),
     'stats' : IDL.Func(
         [],
@@ -647,11 +674,6 @@ export const idlFactory = ({ IDL }) => {
       ),
     'streamAsset' : IDL.Func([IDL.Nat, IDL.Bool, IDL.Vec(IDL.Nat8)], [], []),
     'supply' : IDL.Func([], [Result_2], ['query']),
-    'toAccountIdentifier' : IDL.Func(
-        [IDL.Text, IDL.Nat],
-        [AccountIdentifier__4],
-        ['query'],
-      ),
     'tokens' : IDL.Func([AccountIdentifier__3], [Result_1], ['query']),
     'tokens_ext' : IDL.Func([AccountIdentifier__3], [Result], ['query']),
     'transactions' : IDL.Func([], [IDL.Vec(TransactionV2)], ['query']),
@@ -692,12 +714,22 @@ export const init = ({ IDL }) => {
     'startPrice' : IDL.Nat64,
   });
   const AccountIdentifier = IDL.Text;
+  const PriceInfo = IDL.Record({
+    'ledger' : IDL.Principal,
+    'price' : IDL.Nat64,
+  });
   const Whitelist = IDL.Record({
     'startTime' : Time,
     'endTime' : IDL.Opt(Time),
     'name' : IDL.Text,
     'oneTimeOnly' : IDL.Bool,
     'addresses' : IDL.Vec(AccountIdentifier),
+    'prices' : IDL.Vec(PriceInfo),
+  });
+  const Address = IDL.Text;
+  const PriceInfoWithLimit = IDL.Record({
+    'limit' : IDL.Opt(IDL.Nat),
+    'ledger' : IDL.Principal,
     'price' : IDL.Nat64,
   });
   const InitArgs = IDL.Record({
@@ -713,12 +745,12 @@ export const init = ({ IDL }) => {
     'restoreEnabled' : IDL.Opt(IDL.Bool),
     'revealDelay' : Duration,
     'airdrop' : IDL.Vec(AccountIdentifier),
-    'royalties' : IDL.Vec(IDL.Tuple(AccountIdentifier, IDL.Nat64)),
-    'salePrice' : IDL.Nat64,
+    'royalties' : IDL.Vec(IDL.Tuple(Address, IDL.Nat64)),
+    'salePrices' : IDL.Vec(PriceInfoWithLimit),
     'marketDelay' : IDL.Opt(Duration),
     'singleAssetCollection' : IDL.Opt(IDL.Bool),
     'publicSaleStart' : Time,
-    'salesDistribution' : IDL.Vec(IDL.Tuple(AccountIdentifier, IDL.Nat64)),
+    'salesDistribution' : IDL.Vec(IDL.Tuple(Address, IDL.Nat64)),
   });
   return [IDL.Principal, InitArgs];
 };

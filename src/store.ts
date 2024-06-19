@@ -1,8 +1,9 @@
 import { writable, get } from "svelte/store";
 import type { Principal } from "@dfinity/principal";
-import { Actor, HttpAgent, Identity } from "@dfinity/agent";
+import { Actor, ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
+import { decodeIcrcAccount } from '@dfinity/ledger-icrc';
 import { InterfaceFactory } from "@dfinity/candid/lib/cjs/idl";
 import {
   staging as ext,
@@ -10,11 +11,11 @@ import {
   idlFactory as extIdlFactory,
 } from "./declarations/ext";
 import {
-  ledger,
-  createActor as createLedgerActor,
-  idlFactory as ledgerIdlFactory,
-  canisterId as ledgerCanisterId,
-} from "./declarations/ledger";
+  createActor as createIcrc1Actor,
+  idlFactory as icrc1IdlFactory,
+} from "./declarations/icrc1";
+
+import {Account, _SERVICE as ICRC1_SERVICE} from "./declarations/icrc1/icrc1.did";
 
 // we can't use the canister id from the ext declarations, as
 // we don't deploy the NFT canister from within this project,
@@ -22,17 +23,21 @@ import {
 import { collection } from "./collection";
 
 export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://icp0.io";
+const ledgerCanisterId = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+const seedCanisterId = "fua74-fyaaa-aaaan-qecrq-cai";
 
 type State = {
   isAuthed: "plug" | "stoic" | "bitfinity" | null;
   extActor: typeof ext;
-  ledgerActor: typeof ledger;
+  icpActor: ActorSubclass<ICRC1_SERVICE>;
+  seedActor: ActorSubclass<ICRC1_SERVICE>;
   principal: Principal;
   accountId: string;
   error: string;
   isLoading: boolean;
   isBuying: boolean;
   balance: number;
+  seedBalance: number;
 };
 
 const defaultState: State = {
@@ -40,7 +45,10 @@ const defaultState: State = {
   extActor: createExtActor(collection.canisterId, {
     agentOptions: { host: HOST },
   }),
-  ledgerActor: createLedgerActor(ledgerCanisterId, {
+  icpActor: createIcrc1Actor(ledgerCanisterId, {
+    agentOptions: { host: HOST },
+  }),
+  seedActor: createIcrc1Actor(seedCanisterId, {
     agentOptions: { host: HOST },
   }),
   principal: null,
@@ -49,6 +57,7 @@ const defaultState: State = {
   isLoading: false,
   isBuying: false,
   balance: 0,
+  seedBalance: 0,
 };
 
 export const createStore = ({
@@ -113,14 +122,21 @@ export const createStore = ({
       },
     });
 
-    const ledgerActor = createLedgerActor(ledgerCanisterId, {
+    const icpActor = createIcrc1Actor(ledgerCanisterId, {
       agentOptions: {
         identity,
         host: HOST,
       },
     });
 
-    if (!extActor || !ledgerActor) {
+    const seedActor = createIcrc1Actor(seedCanisterId, {
+      agentOptions: {
+        identity,
+        host: HOST,
+      },
+    });
+
+    if (!extActor || !icpActor) {
       console.warn("couldn't create actors");
       return;
     }
@@ -132,13 +148,17 @@ export const createStore = ({
     update((state) => ({
       ...state,
       extActor,
-      ledgerActor,
+      icpActor,
+      seedActor,
       principal: identity.getPrincipal(),
       accountId: accounts[0].address, // we take the default account associated with the identity
       isAuthed: "stoic",
     }));
 
-    await updateBalance();
+    await Promise.all([
+      updateBalance(),
+      updateSeedBalance(),
+    ]);
   };
 
   const plugConnect = async () => {
@@ -185,20 +205,20 @@ export const createStore = ({
       return;
     }
 
-    // Fetch root key for certificate validation during development
-    if (process.env.DFX_NETWORK !== "ic") {
-      await window.ic.plug.agent.fetchRootKey().catch((err) => {
-        console.warn(
-          "Unable to fetch root key. Check to ensure that your local replica is running"
-        );
-        console.error(err);
-      });
-    }
-
     const extActor = (await window.ic?.plug.createActor({
       canisterId: collection.canisterId,
       interfaceFactory: extIdlFactory,
     })) as typeof ext;
+
+    const icpActor = (await window.ic?.plug.createActor({
+      canisterId: ledgerCanisterId,
+      interfaceFactory: icrc1IdlFactory,
+    })) as ActorSubclass<ICRC1_SERVICE>;
+
+    const seedActor = (await window.ic?.plug.createActor({
+      canisterId: seedCanisterId,
+      interfaceFactory: icrc1IdlFactory,
+    })) as ActorSubclass<ICRC1_SERVICE>;
 
     if (!extActor) {
       console.warn("couldn't create actors");
@@ -210,12 +230,17 @@ export const createStore = ({
     update((state) => ({
       ...state,
       extActor,
+      icpActor,
+      seedActor,
       principal,
       accountId: window.ic.plug.sessionManager.sessionData.accountId,
       isAuthed: "plug",
     }));
 
-    await updateBalance();
+    await Promise.all([
+      updateBalance(),
+      updateSeedBalance(),
+    ]);
 
     console.log("plug is authed");
   };
@@ -246,16 +271,19 @@ export const createStore = ({
     const extActor = (await window.ic.bitfinityWallet.createActor({
       canisterId: collection.canisterId,
       interfaceFactory: extIdlFactory,
-      host: HOST,
     })) as typeof ext;
 
-    const ledgerActor = (await window.ic.bitfinityWallet.createActor({
+    const icpActor = (await window.ic.bitfinityWallet.createActor({
       canisterId: ledgerCanisterId,
-      interfaceFactory: ledgerIdlFactory,
-      host: HOST,
-    })) as typeof ledger;
+      interfaceFactory: icrc1IdlFactory,
+    })) as ActorSubclass<ICRC1_SERVICE>;
 
-    if (!extActor || !ledgerActor) {
+    const seedActor = (await window.ic.bitfinityWallet.createActor({
+      canisterId: seedCanisterId,
+      interfaceFactory: icrc1IdlFactory,
+    })) as ActorSubclass<ICRC1_SERVICE>;
+
+    if (!extActor || !icpActor || !seedActor) {
       console.warn("couldn't create actors");
       return;
     }
@@ -266,13 +294,17 @@ export const createStore = ({
     update((state) => ({
       ...state,
       extActor,
-      ledgerActor,
+      icpActor,
+      seedActor,
       principal,
       accountId,
       isAuthed: "bitfinity",
     }));
 
-    await updateBalance();
+    await Promise.all([
+      updateBalance(),
+      updateSeedBalance(),
+    ]);
 
     console.log("bitfinity is authed");
   };
@@ -282,17 +314,19 @@ export const createStore = ({
     let balance: number;
 
     if (store.isAuthed === "plug") {
-      let result = await window.ic.plug.requestBalance();
-      let ICP = result.find((asset) => asset.symbol === "ICP");
-      balance = ICP.amount;
+      let res = await store.icpActor.icrc1_balance_of({
+        owner: store.principal,
+        subaccount: [],
+      });
+      balance = Number(res / 1_000_000n) / 100;
     } else if (store.isAuthed === "stoic") {
-      let res = await store.ledgerActor.account_balance({
+      let res = await store.icpActor.account_balance({
         account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
       });
       balance = Number(res.e8s / 1_000_000n) / 100;
     } else if (store.isAuthed === "bitfinity") {
       if (process.env.DFX_NETWORK !== "ic") {
-        let res = await store.ledgerActor.account_balance({
+        let res = await store.icpActor.account_balance({
           account: AccountIdentifier.fromHex(store.accountId).toNumbers(),
         });
         balance = Number(res.e8s / 1_000_000n) / 100;
@@ -306,42 +340,43 @@ export const createStore = ({
     update((prevState) => ({ ...prevState, balance }));
   }
 
-  async function transfer(toAddress: string, amount: bigint) {
+  async function updateSeedBalance() {
     const store = get({ subscribe });
 
-    if (store.isAuthed === "plug") {
-      let height = await window.ic.plug.requestTransfer({
-        to: toAddress,
-        amount: Number(amount),
-        opts: {
-          fee: 10000,
-        },
-      });
-      console.log("sent", height);
-    } else if (store.isAuthed === "stoic") {
-      console.log("transfer...");
-      let res = await store.ledgerActor.transfer({
-        from_subaccount: [],
-        to: AccountIdentifier.fromHex(toAddress).toNumbers(),
-        amount: { e8s: amount },
-        fee: { e8s: 10000n },
-        memo: 0n,
-        created_at_time: [],
-      });
-      console.log("sent", res);
-    } else if (store.isAuthed === "bitfinity") {
-      let res = await store.ledgerActor.transfer({
-        from_subaccount: [],
-        to: AccountIdentifier.fromHex(toAddress).toNumbers(),
-        amount: { e8s: amount },
-        fee: { e8s: 10000n },
-        memo: 0n,
-        created_at_time: [],
-      });
-      console.log("sent", res);
+    if (!store.isAuthed) {
+      return;
     }
-    await updateBalance();
-    console.log("updated balance");
+
+    let res = await store.seedActor.icrc1_balance_of({
+      owner: store.principal,
+      subaccount: [],
+    });
+    let balance = Number(res / 1_000_000n) / 100;
+    console.log("balance SEED", balance);
+    update((prevState) => ({ ...prevState, seedBalance: balance }));
+  }
+
+  async function transfer(actor: ActorSubclass<ICRC1_SERVICE>, toAddress: string, amount: bigint) {
+    const store = get({subscribe});
+    let toAccount = decodeIcrcAccount(toAddress);
+
+    console.log("transfer...");
+    let res = await actor.icrc1_transfer({
+      from_subaccount: [],
+      to: {
+        owner: toAccount.owner,
+        subaccount: toAccount.subaccount ? [toAccount.subaccount] : [],
+      },
+      amount: amount,
+      fee: [],
+      memo: [],
+      created_at_time: [],
+    });
+    console.log("sent", res);
+
+    updateBalance().then(() => {
+      console.log("updated balance");
+    });
   }
 
   const disconnect = async () => {
@@ -364,6 +399,15 @@ export const createStore = ({
     });
   };
 
+  async function getTokens() {
+    const store = get({subscribe});
+    let res = await store.extActor.tokens(store.accountId);
+    if ('ok' in res) {
+      return res.ok;
+    }
+    return [];
+  }
+
   return {
     subscribe,
     update,
@@ -373,6 +417,7 @@ export const createStore = ({
     disconnect,
     transfer,
     checkConnections,
+    getTokens,
   };
 };
 
@@ -380,7 +425,7 @@ export const store = createStore({
   whitelist: [
     collection.canisterId,
     ledgerCanisterId,
-    // 'ryjl3-tyaaa-aaaaa-aaaba-cai',
+    seedCanisterId,
   ],
   host: HOST,
 });
@@ -397,7 +442,7 @@ declare global {
         createActor: (options: {
           canisterId: string;
           interfaceFactory: InterfaceFactory;
-          host: string;
+          host?: string;
         }) => Promise<Actor>;
         getPrincipal: () => Promise<Principal>;
         disconnect: () => Promise<boolean>;
@@ -437,16 +482,16 @@ declare global {
           whitelist: string[];
           host?: string;
         }) => Promise<undefined>;
-        requestBalance: () => Promise<
-          Array<{
-            amount: number;
-            canisterId: string | null;
-            image: string;
-            name: string;
-            symbol: string;
-            value: number | null;
-          }>
-        >;
+        // requestBalance: () => Promise<
+        //   Array<{
+        //     amount: number;
+        //     canisterId: string | null;
+        //     image: string;
+        //     name: string;
+        //     symbol: string;
+        //     value: number | null;
+        //   }>
+        // >;
         requestTransfer: (arg: {
           to: string;
           amount: number;

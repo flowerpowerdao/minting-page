@@ -7,10 +7,13 @@
   import Loader from "./Loader.svelte";
   import { fromErr, fromOk, isErr } from "../utils";
   import { collection } from "../collection";
+  import { Principal } from '@dfinity/principal';
 
   export let toggleBuyModal;
   export let count: bigint;
   export let price: bigint;
+  export let symbol: string;
+  export let ledger: Principal;
 
   let isDev = process.env.NODE_ENV;
   let loading = false;
@@ -53,9 +56,10 @@
       // reserve
       let startTime = Date.now();
       let accountId = $store.accountId;
-      console.log("reserving for account", accountId);
+      let principalText = $store.principal.toText();
+      console.log("reserving for principal", principalText);
 
-      let res = await $store.extActor.reserve(accountId);
+      let res = await $store.extActor.reserve(principalText, ledger);
 
       if (isErr(res)) {
         throw fromErr(res); // will be caught at the end of the method
@@ -73,9 +77,10 @@
       }
 
       // transfer ICP
-      progressText = "Transferring ICP...";
+      progressText = `Transferring ${symbol}...`;
       // this can potentially fail, will be caught at the end of the method
-      await store.transfer(payToAddress, priceToPay);
+      let actor = symbol == "ICP" ? $store.icpActor : $store.seedActor;
+      await store.transfer(actor, payToAddress, priceToPay);
 
       // retrieve
       progressText = "Completing purchase...";
@@ -85,8 +90,8 @@
         try {
           res = await $store.extActor.retrieve(payToAddress);
         } catch (e) {
-          // pause for 1 second
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          // pause for 2 seconds
+          await new Promise((resolve) => setTimeout(resolve, 2000));
           console.warn(e);
           continue; // if we can't reach the canister due to subnet or canister overloads, we just try again
         }
@@ -141,7 +146,7 @@
     <div class="dark:text-white lg:text-3xl 2xl:text-4xl">
       Are you sure you want to continue with this purchase of <b>{count}</b>
       NFT{count === 1n ? "" : "s"} for the total price of
-      <b>{(Number(price) / 100000000).toFixed(3)}</b> ICP? All transactions are final
+      <b>{(Number(price) / 100000000).toFixed(3)}</b> {symbol}? All transactions are final
       on confirmation and can't be reversed.
     </div>
     <div class="flex gap-3 flex-col flex-1 justify-center items-center mt-6">
