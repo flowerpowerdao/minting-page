@@ -31,7 +31,7 @@
     {#if $store.isBuying}
       <Loader class="h-14" />
     {:else}
-      BUY {count} NFT<br />FOR {(Number(price) / 100000000).toFixed(3)} {symbol}
+      BUY {count} NFT<br />FOR {(Number(price) / 100000000).toFixed(2)} {symbol}
     {/if}
   </Button>
   <slot></slot>
