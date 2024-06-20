@@ -102,14 +102,17 @@
         }
         if ("err" in res) {
           console.error(res);
-          throw "Your purchase failed! If ICP was sent and the sale ran out, you will be refunded shortly!"; // this throw will be caught at the end of the method
+          throw "Your purchase failed! If ICP or SEED was sent and the sale ran out, you will be refunded shortly!"; // this throw will be caught at the end of the method
         }
       }
 
       // get just bought token
-      let tokens = await $store.extActor.tokens(accountId);
-      if ("ok" in tokens) {
-        boughtTokenIndex = tokens.ok.at(-1);
+      if (collection.previewEnabled) {
+        console.log("getting bought token");
+        let tokens = await $store.extActor.tokens(accountId);
+        if ("ok" in tokens) {
+          boughtTokenIndex = tokens.ok.at(-1);
+        }
       }
 
       step = "bought";
@@ -199,8 +202,7 @@
             style="max-width: 80vh; height: 40vh;"
             title=""
             frameborder="0"
-            src="https://pk6rk-6aaaa-aaaae-qaazq-cai.raw.ic0.app/{boughtTokenIndex -
-              1500}"
+            src="https://pk6rk-6aaaa-aaaae-qaazq-cai.raw.ic0.app/{boughtTokenIndex - 1500}"
             on:load={resolveConfetti}
             on:error={resolveConfetti}
           />
