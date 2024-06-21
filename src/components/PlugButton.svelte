@@ -7,6 +7,7 @@
 
   export let loading;
   export let toggleModal;
+  export let disabled = false;
 
   onMount(async () => {
     const connected = await window.ic?.plug?.isConnected();
@@ -26,7 +27,7 @@
 
 <Button
   on:click={connect}
-  disabled={loading}
+  disabled={disabled || loading}
   style={"lg:h-16 2xl:h-20 lg:rounded-[55px]"}
 >
   {#if loading === "plug"}

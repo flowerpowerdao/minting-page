@@ -11,7 +11,10 @@
 
 <Modal title={"login with …"} {toggleModal}>
   <div class="flex gap-3 flex-col flex-1 justify-center items-center">
-    <PlugButton bind:loading {toggleModal} />
+    <PlugButton bind:loading {toggleModal} disabled={location.hostname === 'mint.fpdao.app'} />
+    {#if location.hostname === 'mint.fpdao.app'}
+      <p class="text-sm text-gray-600 mb-2">To login with Plug please use the canister url: <a class="underline" href="https://3rqw6-naaaa-aaaae-qaeqa-cai.icp0.io/">https://3rqw6-naaaa-aaaae-qaeqa-cai.icp0.io/</a></p>
+    {/if}
     <StoicButton bind:loading {toggleModal} />
     <BitfinityButton bind:loading {toggleModal} />
   </div>
