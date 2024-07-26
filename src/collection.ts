@@ -3,12 +3,13 @@ import localCanisterIds from "../power-equalizer/.dfx/local/canister_ids.json";
 console.log(process.env.NODE_ENV);
 
 export let collection = {
-  name: "Grapes of Wrath",
+  name: "Clown Skateboards V2.0",
   canisterId:
     process.env.NODE_ENV === "development"
       ? localCanisterIds.staging.local
-      : "pzd64-5yaaa-aaaap-ahljq-cai",
-  description: "“Man, unlike any other thing organic or inorganic in the universe, grows beyond his work, walks up the stairs of his concepts, and emerges ahead of his accomplishments.”\n ― John Steinbeck, The Grapes of Wrath",
+      : "hcsnx-2iaaa-aaaam-ac4bq-cai",
+      // : "ubcso-fqaaa-aaaan-qlrca-cai", // staging
+  description: "The iconic Clown logo returns, now in a more digital form with a pixelated format. The colors, chosen by the FLOWER POWER COMMUNITY, have been remixed, reworked, and energized with the creative eye of LUDO. A special Clown camo has been produced to add further flair to this release, and 4 of our OG colors will be used, giving this release vibrancy and rarity.",
   // show nft asset preview immediately after purchase
   previewEnabled: false, // if true, NFT canister must have revealDelay = 0
 };

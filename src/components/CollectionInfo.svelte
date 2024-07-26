@@ -2,10 +2,10 @@
   import { collection } from "../collection";
   import type { SaleSettingsV3 } from "../declarations/ext/staging.did";
   import { store } from "../store";
-  import formatDistance from "date-fns/formatDistance";
+  import { formatDistance } from "date-fns/formatDistance";
   import { onMount } from "svelte";
   import BuyNftButton from "./BuyNftButton.svelte";
-  import {Principal} from '@dfinity/principal';
+  import { Principal } from '@dfinity/principal';
 
   let saleSettings: SaleSettingsV3;
   let saleStatus: "waiting" | "ongoing" | "ended" = "waiting";
